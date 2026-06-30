@@ -24,7 +24,7 @@ const styles = `
     padding-top: 62px;
   }
 
-  /* ── HERO STRIP ── */
+  /* ── HERO STRIP*/
   .hero-strip {
     background: var(--ink);
     color: var(--cream);
@@ -399,7 +399,7 @@ const Home = ({ selectedCategory }) => {
   }, [refreshData, isDataFetched]);
 
   useEffect(() => {
-    console.log(data, 'data from home page');
+    console.log(data, "data from home page");
   }, [data]);
 
   useEffect(() => {
@@ -410,10 +410,10 @@ const Home = ({ selectedCategory }) => {
     return () => clearTimeout(toastTimer);
   }, [showToast]);
 
-  const convertBase64ToDataURL = (base64String, mimeType = 'image/jpeg') => {
+  const convertBase64ToDataURL = (base64String, mimeType = "image/jpeg") => {
     if (!base64String) return unplugged;
-    if (base64String.startsWith('data:')) return base64String;
-    if (base64String.startsWith('http')) return base64String;
+    if (base64String.startsWith("data:")) return base64String;
+    if (base64String.startsWith("http")) return base64String;
     return `data:${mimeType};base64,${base64String}`;
   };
 
@@ -433,7 +433,12 @@ const Home = ({ selectedCategory }) => {
       <>
         <style>{styles}</style>
         <div className="error-state">
-          <img src={unplugged} alt="Error" width="80" style={{ opacity: 0.4 }} />
+          <img
+            src={unplugged}
+            alt="Error"
+            width="80"
+            style={{ opacity: 0.4 }}
+          />
           <h4>Something went wrong</h4>
           <p>We couldn't load the products. Please try again.</p>
         </div>
@@ -447,14 +452,16 @@ const Home = ({ selectedCategory }) => {
 
       {/* ── Toast ── */}
       <div className="toast-wrapper">
-        <div className={`toast-pill ${showToast ? 'show' : ''}`}>
+        <div className={`toast-pill ${showToast ? "show" : ""}`}>
           {toastProduct && (
             <>
               <img
                 src={convertBase64ToDataURL(toastProduct.imageData)}
                 alt={toastProduct.name}
                 className="toast-img"
-                onError={(e) => { e.target.src = unplugged; }}
+                onError={(e) => {
+                  e.target.src = unplugged;
+                }}
               />
               <div>
                 <div className="toast-text-main">{toastProduct.name}</div>
@@ -462,7 +469,13 @@ const Home = ({ selectedCategory }) => {
               </div>
               <div className="toast-icon">
                 <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
-                  <path d="M1 4.5L4 7.5L10 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path
+                    d="M1 4.5L4 7.5L10 1"
+                    stroke="white"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </div>
             </>
@@ -475,64 +488,87 @@ const Home = ({ selectedCategory }) => {
         <div className="hero-strip">
           <div className="hero-eyebrow">New arrivals · Season 2026</div>
           <h1 className="hero-title">
-            Shop <em>the</em><br />finest picks
+            Shop <em>the</em>
+            <br />
+            finest picks
           </h1>
           <p className="hero-sub">
-            Curated products, honest prices — everything you need, nothing you don't.
+            Curated products, honest prices — everything you need, nothing you
+            don't.
           </p>
-          <div className="hero-count">
-            {filteredProducts?.length || ''}
-          </div>
+          <div className="hero-count">{filteredProducts?.length || ""}</div>
         </div>
 
         {/* ── Products ── */}
         <div className="products-section">
           <div className="section-label">
-            {selectedCategory ? selectedCategory : 'All Products'}
-            {filteredProducts?.length > 0 && ` · ${filteredProducts.length} items`}
+            {selectedCategory ? selectedCategory : "All Products"}
+            {filteredProducts?.length > 0 &&
+              ` · ${filteredProducts.length} items`}
           </div>
 
           {!filteredProducts || filteredProducts.length === 0 ? (
             <div className="empty-state">
               <h3>Nothing here yet</h3>
-              <p>No products found{selectedCategory ? ` in "${selectedCategory}"` : ''}.</p>
+              <p>
+                No products found
+                {selectedCategory ? ` in "${selectedCategory}"` : ""}.
+              </p>
             </div>
           ) : (
             <div className="products-grid">
               {filteredProducts.map((product, idx) => {
-                const { id, brand, name, price, productAvailable, imageData, stockQuantity } = product;
+                const {
+                  id,
+                  brand,
+                  name,
+                  price,
+                  productAvailable,
+                  imageData,
+                  stockQuantity,
+                } = product;
                 const available = productAvailable && stockQuantity !== 0;
 
                 return (
                   <div
-                    className={`product-card ${!available ? 'unavailable' : ''}`}
+                    className={`product-card ${!available ? "unavailable" : ""}`}
                     key={id}
                     style={{ animationDelay: `${Math.min(idx * 0.05, 0.4)}s` }}
                   >
-                    <Link to={`/product/${id}`} className="text-decoration-none">
+                    <Link
+                      to={`/product/${id}`}
+                      className="text-decoration-none"
+                    >
                       <div className="img-wrapper">
                         <img
                           src={convertBase64ToDataURL(imageData)}
                           alt={name}
-                          onError={(e) => { e.target.src = unplugged; }}
+                          onError={(e) => {
+                            e.target.src = unplugged;
+                          }}
                         />
-                        {!available && <span className="oos-badge">Out of Stock</span>}
+                        {!available && (
+                          <span className="oos-badge">Out of Stock</span>
+                        )}
                       </div>
                     </Link>
 
                     <div className="card-body">
                       <div className="card-brand">{brand}</div>
-                      <Link to={`/product/${id}`} className="card-name">{name}</Link>
+                      <Link to={`/product/${id}`} className="card-name">
+                        {name}
+                      </Link>
                       <div className="card-footer-row">
                         <div className="card-price">
-                          <span>₹</span>{price}
+                          <span>₹</span>
+                          {price}
                         </div>
                         <button
                           className="btn-cart"
                           onClick={(e) => handleAddToCart(e, product)}
                           disabled={!available}
                         >
-                          {available ? '+ Cart' : 'Sold Out'}
+                          {available ? "+ Cart" : "Sold Out"}
                         </button>
                       </div>
                     </div>
