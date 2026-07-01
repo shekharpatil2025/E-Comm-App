@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
-import AppContext from "../Context/Context";
+import AppContext from "../../Context/Context";
 import axios from "axios";
-import CheckoutPopup from "./CheckoutPopup";
+import CheckoutPopup from "../../components/CheckoutPopup/CheckoutPopup";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -420,7 +420,10 @@ const Cart = () => {
   }, [cart]);
 
   useEffect(() => {
-    const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const total = cartItems.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0,
+    );
     setTotalPrice(total);
   }, [cartItems]);
 
@@ -443,7 +446,9 @@ const Cart = () => {
 
   const handleDecreaseQuantity = (itemId) => {
     const newCartItems = cartItems.map((item) =>
-      item.id === itemId ? { ...item, quantity: Math.max(item.quantity - 1, 1) } : item
+      item.id === itemId
+        ? { ...item, quantity: Math.max(item.quantity - 1, 1) }
+        : item,
     );
     setCartItems(newCartItems);
   };
@@ -456,19 +461,30 @@ const Cart = () => {
   const handleCheckout = async () => {
     try {
       for (const item of cartItems) {
-        const { imageUrl, imageName, imageData, imageType, quantity, ...rest } = item;
+        const { imageUrl, imageName, imageData, imageType, quantity, ...rest } =
+          item;
         const updatedStockQuantity = item.stockQuantity - item.quantity;
-        const updatedProductData = { ...rest, stockQuantity: updatedStockQuantity };
+        const updatedProductData = {
+          ...rest,
+          stockQuantity: updatedStockQuantity,
+        };
 
         const cartProduct = new FormData();
         cartProduct.append("imageFile", cartImage);
-        cartProduct.append("product", new Blob([JSON.stringify(updatedProductData)], { type: "application/json" }));
+        cartProduct.append(
+          "product",
+          new Blob([JSON.stringify(updatedProductData)], {
+            type: "application/json",
+          }),
+        );
 
         await axios
           .put(`${baseUrl}/api/product/${item.id}`, cartProduct, {
             headers: { "Content-Type": "multipart/form-data" },
           })
-          .then((response) => console.log("Product updated successfully:", cartProduct))
+          .then((response) =>
+            console.log("Product updated successfully:", cartProduct),
+          )
           .catch((error) => console.error("Error updating product:", error));
       }
       clearCart();
@@ -485,15 +501,26 @@ const Cart = () => {
     <>
       <style>{styles}</style>
       <div className="cart-wrapper">
-
         {/* ── Header ── */}
         <div className="cart-header">
           <div className="cart-eyebrow">Shopping · Bag</div>
-          <h1 className="cart-title">Your <em>cart</em></h1>
+          <h1 className="cart-title">
+            Your <em>cart</em>
+          </h1>
           <div className="cart-ghost">
-            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            <svg
+              width="60"
+              height="60"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="9" cy="21" r="1" />
+              <circle cx="20" cy="21" r="1" />
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
             </svg>
           </div>
         </div>
@@ -502,16 +529,38 @@ const Cart = () => {
           {cartItems.length === 0 ? (
             <div className="empty-state">
               <div className="empty-icon-ring">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                <svg
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="9" cy="21" r="1" />
+                  <circle cx="20" cy="21" r="1" />
+                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
                 </svg>
               </div>
               <h2 className="empty-title">Your cart is empty</h2>
-              <p className="empty-sub">Looks like you haven't added anything yet.</p>
+              <p className="empty-sub">
+                Looks like you haven't added anything yet.
+              </p>
               <a href="/" className="btn-shop">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="19" y1="12" x2="5" y2="12" />
+                  <polyline points="12 19 5 12 12 5" />
                 </svg>
                 Browse Products
               </a>
@@ -521,17 +570,24 @@ const Cart = () => {
               {/* ── Items column ── */}
               <div>
                 <div className="section-label">
-                  Cart Items · {itemCount} {itemCount === 1 ? 'piece' : 'pieces'}
+                  Cart Items · {itemCount}{" "}
+                  {itemCount === 1 ? "piece" : "pieces"}
                 </div>
 
                 {cartItems.map((item, idx) => (
-                  <div className="cart-item" key={item.id} style={{ animationDelay: `${Math.min(idx * 0.05, 0.3)}s` }}>
+                  <div
+                    className="cart-item"
+                    key={item.id}
+                    style={{ animationDelay: `${Math.min(idx * 0.05, 0.3)}s` }}
+                  >
                     {/* Image */}
                     <div className="item-img-wrap">
                       <img
                         src={`${baseUrl}/api/product/${item.id}/image`}
                         alt={item.name}
-                        onError={(e) => { e.target.style.opacity = 0.3; }}
+                        onError={(e) => {
+                          e.target.style.opacity = 0.3;
+                        }}
                       />
                     </div>
 
@@ -539,20 +595,47 @@ const Cart = () => {
                     <div className="item-info">
                       <div className="item-brand">{item.brand}</div>
                       <div className="item-name">{item.name}</div>
-                      <div className="item-unit-price">₹{item.price.toLocaleString('en-IN')} each</div>
+                      <div className="item-unit-price">
+                        ₹{item.price.toLocaleString("en-IN")} each
+                      </div>
                     </div>
 
                     {/* Controls */}
                     <div className="item-controls">
-                      <button className="remove-btn" onClick={() => handleRemoveFromCart(item.id)} title="Remove">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                          <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+                      <button
+                        className="remove-btn"
+                        onClick={() => handleRemoveFromCart(item.id)}
+                        title="Remove"
+                      >
+                        <svg
+                          width="15"
+                          height="15"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polyline points="3 6 5 6 21 6" />
+                          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                          <path d="M10 11v6" />
+                          <path d="M14 11v6" />
+                          <path d="M9 6V4h6v2" />
                         </svg>
                       </button>
 
                       <div>
-                        <div className="item-total">₹{(item.price * item.quantity).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                        <div className="item-total">
+                          ₹
+                          {(item.price * item.quantity).toLocaleString(
+                            "en-IN",
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            },
+                          )}
+                        </div>
                       </div>
 
                       <div className="qty-stepper">
@@ -561,8 +644,16 @@ const Cart = () => {
                           onClick={() => handleDecreaseQuantity(item.id)}
                           disabled={item.quantity <= 1}
                         >
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                            <line x1="5" y1="12" x2="19" y2="12"/>
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                          >
+                            <line x1="5" y1="12" x2="19" y2="12" />
                           </svg>
                         </button>
                         <div className="qty-value">{item.quantity}</div>
@@ -571,8 +662,17 @@ const Cart = () => {
                           onClick={() => handleIncreaseQuantity(item.id)}
                           disabled={item.quantity >= item.stockQuantity}
                         >
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                          >
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
                           </svg>
                         </button>
                       </div>
@@ -587,33 +687,67 @@ const Cart = () => {
                 <div className="summary-card">
                   <div className="summary-head">
                     <div className="summary-head-label">Order Summary</div>
-                    <div className="summary-head-title">{itemCount} {itemCount === 1 ? 'item' : 'items'}</div>
+                    <div className="summary-head-title">
+                      {itemCount} {itemCount === 1 ? "item" : "items"}
+                    </div>
                   </div>
                   <div className="summary-body">
                     {cartItems.map((item) => (
                       <div className="summary-line" key={item.id}>
                         <span className="summary-line-label">
-                          {item.name.length > 20 ? item.name.slice(0, 20) + '…' : item.name}
-                          <span style={{ marginLeft: 6, color: 'var(--muted)', fontSize: 11 }}>×{item.quantity}</span>
+                          {item.name.length > 20
+                            ? item.name.slice(0, 20) + "…"
+                            : item.name}
+                          <span
+                            style={{
+                              marginLeft: 6,
+                              color: "var(--muted)",
+                              fontSize: 11,
+                            }}
+                          >
+                            ×{item.quantity}
+                          </span>
                         </span>
                         <span className="summary-line-value">
-                          ₹{(item.price * item.quantity).toLocaleString('en-IN')}
+                          ₹
+                          {(item.price * item.quantity).toLocaleString("en-IN")}
                         </span>
                       </div>
                     ))}
 
                     <div className="summary-total-row">
                       <span className="summary-total-label">Total</span>
-                      <span className="summary-total-value">₹{totalPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      <span className="summary-total-value">
+                        ₹
+                        {totalPrice.toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
                     </div>
 
-                    <button className="btn-checkout" onClick={() => setShowModal(true)}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M5 12h14"/><path d="M12 5l7 7-7 7"/>
+                    <button
+                      className="btn-checkout"
+                      onClick={() => setShowModal(true)}
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M5 12h14" />
+                        <path d="M12 5l7 7-7 7" />
                       </svg>
                       Proceed to Checkout
                     </button>
-                    <button className="btn-clear" onClick={clearCart}>Clear Cart</button>
+                    <button className="btn-clear" onClick={clearCart}>
+                      Clear Cart
+                    </button>
                   </div>
                 </div>
               </div>

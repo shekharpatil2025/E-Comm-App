@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
-import AppContext from "../Context/Context";
-import axios from "../axios";
+import AppContext from "../../Context/Context";
+import axios from "../../axios";
 import { toast } from "react-toastify";
 
 const styles = `
@@ -460,7 +460,8 @@ const styles = `
 
 const Product = () => {
   const { id } = useParams();
-  const { data, addToCart, removeFromCart, cart, refreshData } = useContext(AppContext);
+  const { data, addToCart, removeFromCart, cart, refreshData } =
+    useContext(AppContext);
   const [product, setProduct] = useState(null);
   const [imageUrl, setImageUrl] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -479,7 +480,9 @@ const Product = () => {
     };
 
     const fetchImage = async () => {
-      const response = await axios.get(`${baseUrl}/api/product/${id}/image`, { responseType: "blob" });
+      const response = await axios.get(`${baseUrl}/api/product/${id}/image`, {
+        responseType: "blob",
+      });
       setImageUrl(URL.createObjectURL(response.data));
     };
 
@@ -525,7 +528,6 @@ const Product = () => {
     <>
       <style>{styles}</style>
       <div className="product-wrapper">
-
         {/* ── Breadcrumb ── */}
         <div className="product-breadcrumb">
           <a href="/">Home</a>
@@ -536,7 +538,6 @@ const Product = () => {
         </div>
 
         <div className="product-body">
-
           {/* ── Image panel ── */}
           <div className="product-img-panel">
             <div className="product-img-bg" />
@@ -554,16 +555,20 @@ const Product = () => {
 
           {/* ── Detail panel ── */}
           <div className="product-detail-panel">
-
             <div className="product-meta-row">
               <span
-                className={`stock-badge ${isAvailable ? 'in-stock' : 'out-stock'}`}
+                className={`stock-badge ${isAvailable ? "in-stock" : "out-stock"}`}
               >
                 <span className="stock-badge-dot" />
-                {isAvailable ? 'In Stock' : 'Out of Stock'}
+                {isAvailable ? "In Stock" : "Out of Stock"}
               </span>
               <span className="product-listed">
-                Listed {new Date(product.releaseDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                Listed{" "}
+                {new Date(product.releaseDate).toLocaleDateString("en-IN", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
               </span>
             </div>
 
@@ -577,19 +582,38 @@ const Product = () => {
 
             <div className="product-price-row">
               <span className="product-price-symbol">₹</span>
-              <span className="product-price">{Number(product.price).toLocaleString('en-IN')}</span>
+              <span className="product-price">
+                {Number(product.price).toLocaleString("en-IN")}
+              </span>
             </div>
 
             <div className="product-stock-row">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
-                <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
+                <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
               </svg>
               <span>
-                {product.stockQuantity > 0
-                  ? <><span className="product-stock-num">{product.stockQuantity}</span> units available</>
-                  : <span style={{ color: 'var(--rust)' }}>No stock remaining</span>
-                }
+                {product.stockQuantity > 0 ? (
+                  <>
+                    <span className="product-stock-num">
+                      {product.stockQuantity}
+                    </span>{" "}
+                    units available
+                  </>
+                ) : (
+                  <span style={{ color: "var(--rust)" }}>
+                    No stock remaining
+                  </span>
+                )}
               </span>
             </div>
 
@@ -600,29 +624,63 @@ const Product = () => {
             >
               {isAvailable ? (
                 <>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="9" cy="21" r="1" />
+                    <circle cx="20" cy="21" r="1" />
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
                   </svg>
                   Add to Cart
                 </>
-              ) : 'Out of Stock'}
+              ) : (
+                "Out of Stock"
+              )}
             </button>
 
             <div className="admin-row">
               <button className="btn-admin btn-edit" onClick={handleEditClick}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                 </svg>
                 Edit Product
               </button>
-              <button className="btn-admin btn-delete" onClick={() => setShowDeleteConfirm(true)}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="3 6 5 6 21 6"/>
-                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                  <path d="M10 11v6"/><path d="M14 11v6"/>
-                  <path d="M9 6V4h6v2"/>
+              <button
+                className="btn-admin btn-delete"
+                onClick={() => setShowDeleteConfirm(true)}
+              >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                  <path d="M10 11v6" />
+                  <path d="M14 11v6" />
+                  <path d="M9 6V4h6v2" />
                 </svg>
                 Delete
               </button>
@@ -633,25 +691,48 @@ const Product = () => {
 
       {/* ── Delete confirm dialog ── */}
       {showDeleteConfirm && (
-        <div className="delete-overlay" onClick={(e) => e.target === e.currentTarget && setShowDeleteConfirm(false)}>
+        <div
+          className="delete-overlay"
+          onClick={(e) =>
+            e.target === e.currentTarget && setShowDeleteConfirm(false)
+          }
+        >
           <div className="delete-dialog">
             <div className="delete-dialog-head">
               <div className="delete-dialog-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="3 6 5 6 21 6"/>
-                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                  <path d="M10 11v6"/><path d="M14 11v6"/>
-                  <path d="M9 6V4h6v2"/>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                  <path d="M10 11v6" />
+                  <path d="M14 11v6" />
+                  <path d="M9 6V4h6v2" />
                 </svg>
               </div>
               <h2 className="delete-dialog-title">Delete Product</h2>
             </div>
             <div className="delete-dialog-body">
-              Are you sure you want to delete <strong>"{product.name}"</strong>? This action cannot be undone.
+              Are you sure you want to delete <strong>"{product.name}"</strong>?
+              This action cannot be undone.
             </div>
             <div className="delete-dialog-footer">
-              <button className="delete-cancel" onClick={() => setShowDeleteConfirm(false)}>Cancel</button>
-              <button className="delete-confirm" onClick={deleteProduct}>Yes, Delete</button>
+              <button
+                className="delete-cancel"
+                onClick={() => setShowDeleteConfirm(false)}
+              >
+                Cancel
+              </button>
+              <button className="delete-confirm" onClick={deleteProduct}>
+                Yes, Delete
+              </button>
             </div>
           </div>
         </div>

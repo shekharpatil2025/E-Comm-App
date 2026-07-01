@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import React, { useEffect, useRef, useState, useContext } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import axios from "../../axios";
+import AppContext from "../../Context/Context";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -311,6 +312,42 @@ const styles = `
     flex-shrink: 0;
   }
 
+  /* ── AUTH BUTTON ── */
+  .nav-auth-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .nav-login-btn {
+    background: #d4a853;
+    color: #0d0d0d;
+    border: none;
+  }
+  .nav-login-btn:hover { background: #e0b96a; color: #0d0d0d; }
+  .nav-logout-btn {
+    background: transparent;
+    color: rgba(245,240,232,0.6);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .nav-logout-btn:hover { color: #c94b2b; border-color: rgba(201,75,43,0.4); }
+  .nav-username {
+    font-size: 12px;
+    color: rgba(245,240,232,0.45);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
   /* ── MOBILE TOGGLE ── */
   .mobile-toggle {
     display: none;
@@ -455,6 +492,7 @@ const styles = `
 `;
 
 const Navbar = ({ onSelectCategory }) => {
+  const { user, logout } = useContext(AppContext);
   const getInitialTheme = () => localStorage.getItem("theme") || "light-theme";
 
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -472,7 +510,9 @@ const Navbar = ({ onSelectCategory }) => {
   const navigate = useNavigate();
   const baseUrl = import.meta.env.VITE_BASE_URL;
 
-  useEffect(() => { fetchInitialData(); }, []);
+  useEffect(() => {
+    fetchInitialData();
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -498,7 +538,7 @@ const Navbar = ({ onSelectCategory }) => {
   const fetchInitialData = async () => {
     try {
       const response = await axios.get(`${baseUrl}/api/products`);
-      console.log(response.data, 'navbar initial data');
+      //console.log(response.data, "navbar initial data");
     } catch (error) {
       console.error("Error fetching initial data:", error);
     }
@@ -516,7 +556,9 @@ const Navbar = ({ onSelectCategory }) => {
     setIsNavCollapsed(true);
     setCatOpen(false);
     try {
-      const response = await axios.get(`${baseUrl}/api/products/search?keyword=${input}`);
+      const response = await axios.get(
+        `${baseUrl}/api/products/search?keyword=${input}`,
+      );
       setSearchResults(response.data);
       if (response.data.length === 0) {
         setNoResults(true);
@@ -545,9 +587,18 @@ const Navbar = ({ onSelectCategory }) => {
     localStorage.setItem("theme", newTheme);
   };
 
-  useEffect(() => { document.body.className = theme; }, [theme]);
+  useEffect(() => {
+    document.body.className = theme;
+  }, [theme]);
 
-  const categories = ["Laptop", "Headphone", "Mobile", "Electronics", "Toys", "Fashion"];
+  const categories = [
+    "Laptop",
+    "Headphone",
+    "Mobile",
+    "Electronics",
+    "Toys",
+    "Fashion",
+  ];
 
   const isDark = theme === "dark-theme";
 
@@ -566,7 +617,7 @@ const Navbar = ({ onSelectCategory }) => {
       <nav className="nav-shell" ref={navbarRef}>
         {/* Brand */}
         <a className="nav-brand" href="/">
-          Telu<em>sko</em>
+          Multi<em>Verse</em>
         </a>
 
         <div className="nav-divider" />
@@ -575,24 +626,56 @@ const Navbar = ({ onSelectCategory }) => {
         <ul className="nav-links">
           <li>
             <a href="/" className="active" onClick={handleLinkClick}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                <polyline points="9 22 9 12 15 12 15 22" />
               </svg>
               Home
             </a>
           </li>
           <li>
             <a href="/add_product" onClick={handleLinkClick}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
               Add Product
             </a>
           </li>
           <li>
             <a href="/orders" onClick={handleLinkClick}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
               </svg>
               Orders
             </a>
@@ -602,24 +685,46 @@ const Navbar = ({ onSelectCategory }) => {
         {/* Category dropdown */}
         <div className="cat-pill" ref={catRef}>
           <button
-            className={`cat-pill-btn ${catOpen ? 'open' : ''}`}
+            className={`cat-pill-btn ${catOpen ? "open" : ""}`}
             onClick={() => setCatOpen(!catOpen)}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
-              <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="8" y1="6" x2="21" y2="6" />
+              <line x1="8" y1="12" x2="21" y2="12" />
+              <line x1="8" y1="18" x2="21" y2="18" />
+              <line x1="3" y1="6" x2="3.01" y2="6" />
+              <line x1="3" y1="12" x2="3.01" y2="12" />
+              <line x1="3" y1="18" x2="3.01" y2="18" />
             </svg>
-            {selectedCategory || 'Categories'}
-            <svg className="cat-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <polyline points="6 9 12 15 18 9"/>
+            {selectedCategory || "Categories"}
+            <svg
+              className="cat-chevron"
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            >
+              <polyline points="6 9 12 15 18 9" />
             </svg>
           </button>
 
-          <div className={`cat-dropdown ${catOpen ? 'show' : ''}`}>
+          <div className={`cat-dropdown ${catOpen ? "show" : ""}`}>
             {categories.map((cat) => (
               <button
                 key={cat}
-                className={`cat-item ${selectedCategory === cat ? 'selected' : ''}`}
+                className={`cat-item ${selectedCategory === cat ? "selected" : ""}`}
                 onClick={() => handleCategorySelect(cat)}
               >
                 <span className="cat-dot" />
@@ -628,7 +733,10 @@ const Navbar = ({ onSelectCategory }) => {
             ))}
             {selectedCategory && (
               <div className="cat-reset">
-                <button className="cat-item" onClick={() => handleCategorySelect("")}>
+                <button
+                  className="cat-item"
+                  onClick={() => handleCategorySelect("")}
+                >
                   <span className="cat-dot" />
                   Clear filter
                 </button>
@@ -641,25 +749,62 @@ const Navbar = ({ onSelectCategory }) => {
         <div className="nav-right">
           {/* Cart */}
           <a href="/cart" className="nav-cart" onClick={handleLinkClick}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="9" cy="21" r="1" />
+              <circle cx="20" cy="21" r="1" />
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
             </svg>
             Cart
           </a>
 
           {/* Theme toggle */}
-          <button className="theme-btn" onClick={toggleTheme} title="Toggle theme">
+          <button
+            className="theme-btn"
+            onClick={toggleTheme}
+            title="Toggle theme"
+          >
             {isDark ? (
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="5" />
+                <line x1="12" y1="1" x2="12" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="23" />
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                <line x1="1" y1="12" x2="3" y2="12" />
+                <line x1="21" y1="12" x2="23" y2="12" />
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
               </svg>
             ) : (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
               </svg>
             )}
           </button>
@@ -677,22 +822,55 @@ const Navbar = ({ onSelectCategory }) => {
               {isLoading ? (
                 <div className="search-spinner" />
               ) : (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
               )}
             </button>
           </form>
 
           {/* Mobile hamburger */}
-          <button className="mobile-toggle" onClick={handleNavbarToggle} aria-label="Toggle menu">
+          <button
+            className="mobile-toggle"
+            onClick={handleNavbarToggle}
+            aria-label="Toggle menu"
+          >
             {isNavCollapsed ? (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+              >
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
               </svg>
             ) : (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             )}
           </button>
@@ -700,29 +878,73 @@ const Navbar = ({ onSelectCategory }) => {
       </nav>
 
       {/* ── Mobile Drawer ── */}
-      <div className={`mobile-drawer ${!isNavCollapsed ? 'open' : ''}`}>
+      <div className={`mobile-drawer ${!isNavCollapsed ? "open" : ""}`}>
         <a href="/" className="mobile-link" onClick={handleLinkClick}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
           </svg>
           Home
         </a>
-        <a href="/add_product" className="mobile-link" onClick={handleLinkClick}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        <a
+          href="/add_product"
+          className="mobile-link"
+          onClick={handleLinkClick}
+        >
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
           Add Product
         </a>
         <a href="/orders" className="mobile-link" onClick={handleLinkClick}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
           </svg>
           Orders
         </a>
         <a href="/cart" className="mobile-link" onClick={handleLinkClick}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="9" cy="21" r="1" />
+            <circle cx="20" cy="21" r="1" />
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
           </svg>
           Cart
         </a>
@@ -732,7 +954,7 @@ const Navbar = ({ onSelectCategory }) => {
           {categories.map((cat) => (
             <button
               key={cat}
-              className={`mobile-cat-item ${selectedCategory === cat ? 'selected' : ''}`}
+              className={`mobile-cat-item ${selectedCategory === cat ? "selected" : ""}`}
               onClick={() => handleCategorySelect(cat)}
             >
               {cat}
@@ -742,7 +964,13 @@ const Navbar = ({ onSelectCategory }) => {
         {selectedCategory && (
           <button
             className="mobile-cat-item"
-            style={{ width: '100%', color: 'var(--muted)', fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase' }}
+            style={{
+              width: "100%",
+              color: "var(--muted)",
+              fontSize: 11,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+            }}
             onClick={() => handleCategorySelect("")}
           >
             Clear filter
@@ -756,14 +984,14 @@ const Navbar = ({ onSelectCategory }) => {
             placeholder="Search products…"
             value={input}
             onChange={(e) => handleInputChange(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSubmit(e)}
+            onKeyDown={(e) => e.key === "Enter" && handleSubmit(e)}
           />
           <button
             className="mobile-search-btn"
             onClick={handleSubmit}
             disabled={isLoading}
           >
-            {isLoading ? '…' : 'Go'}
+            {isLoading ? "…" : "Go"}
           </button>
         </div>
       </div>
