@@ -1,6 +1,7 @@
 package com.shekhar.SpringBoot_ecom.controller;
 
 import com.shekhar.SpringBoot_ecom.model.DTO.AuthResponse;
+import com.shekhar.SpringBoot_ecom.model.DTO.LoginRequest;
 import com.shekhar.SpringBoot_ecom.model.DTO.RegisterRequest;
 import com.shekhar.SpringBoot_ecom.service.AuthService;
 import jakarta.validation.Valid;
@@ -24,4 +25,10 @@ public class AuthController {
     public ResponseEntity<AuthResponse>register(@Valid @RequestBody RegisterRequest request){
         return new ResponseEntity<>(authService.register(request), HttpStatus.CREATED);
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse>login(@Valid @RequestBody LoginRequest login){
+        return new ResponseEntity<>(authService.login(login),HttpStatus.OK);
+    }
+
 }
