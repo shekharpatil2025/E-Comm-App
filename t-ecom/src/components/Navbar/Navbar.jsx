@@ -17,12 +17,9 @@ const styles = `
     --nav-height: 62px;
   }
 
-  /* ── NAV SHELL ── */
   .nav-shell {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: 0; left: 0; right: 0;
     z-index: 1000;
     background: var(--ink);
     height: var(--nav-height);
@@ -34,7 +31,6 @@ const styles = `
     box-shadow: 0 1px 0 rgba(255,255,255,0.06), 0 4px 24px rgba(0,0,0,0.3);
   }
 
-  /* ── BRAND ── */
   .nav-brand {
     font-family: 'Playfair Display', serif;
     font-size: 22px;
@@ -46,29 +42,22 @@ const styles = `
     margin-right: 36px;
     transition: color 0.2s;
   }
-  .nav-brand em {
-    font-style: italic;
-    color: var(--gold);
-  }
+  .nav-brand em { font-style: italic; color: var(--gold); }
   .nav-brand:hover { color: var(--gold); }
 
-  /* ── DIVIDER ── */
   .nav-divider {
-    width: 1px;
-    height: 20px;
+    width: 1px; height: 20px;
     background: var(--border);
     flex-shrink: 0;
     margin-right: 28px;
   }
 
-  /* ── LINKS ── */
   .nav-links {
     display: flex;
     align-items: center;
     gap: 4px;
     list-style: none;
-    margin: 0;
-    padding: 0;
+    margin: 0; padding: 0;
     flex: 1;
   }
   .nav-links a {
@@ -86,19 +75,14 @@ const styles = `
     transition: color 0.2s, background 0.2s;
     white-space: nowrap;
   }
-  .nav-links a:hover,
-  .nav-links a.active {
+  .nav-links a:hover, .nav-links a.active {
     color: var(--cream);
     background: rgba(255,255,255,0.06);
   }
   .nav-links a svg { opacity: 0.6; }
   .nav-links a:hover svg, .nav-links a.active svg { opacity: 1; }
 
-  /* ── CATEGORY PILL ── */
-  .cat-pill {
-    position: relative;
-    margin-left: 4px;
-  }
+  .cat-pill { position: relative; margin-left: 4px; }
   .cat-pill-btn {
     display: flex;
     align-items: center;
@@ -121,9 +105,7 @@ const styles = `
     color: var(--cream);
     background: rgba(255,255,255,0.06);
   }
-  .cat-chevron {
-    transition: transform 0.25s;
-  }
+  .cat-chevron { transition: transform 0.25s; }
   .cat-pill-btn.open .cat-chevron { transform: rotate(180deg); }
 
   .cat-dropdown {
@@ -168,8 +150,7 @@ const styles = `
   .cat-item:hover { background: rgba(255,255,255,0.07); color: var(--cream); }
   .cat-item.selected { color: var(--gold); }
   .cat-dot {
-    width: 6px;
-    height: 6px;
+    width: 6px; height: 6px;
     border-radius: 50%;
     background: rgba(255,255,255,0.15);
     flex-shrink: 0;
@@ -186,7 +167,6 @@ const styles = `
   .cat-reset .cat-item { color: var(--muted); font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; }
   .cat-reset .cat-item:hover { color: var(--rust); }
 
-  /* ── RIGHT SIDE ── */
   .nav-right {
     display: flex;
     align-items: center;
@@ -195,7 +175,6 @@ const styles = `
     flex-shrink: 0;
   }
 
-  /* ── CART ── */
   .nav-cart {
     display: flex;
     align-items: center;
@@ -218,10 +197,44 @@ const styles = `
     background: rgba(212,168,83,0.07);
   }
 
-  /* ── THEME TOGGLE ── */
+  /* ── AUTH ── */
+  .nav-username {
+    font-size: 12px;
+    color: rgba(245,240,232,0.4);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .nav-auth-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .nav-login-btn {
+    background: var(--gold);
+    color: var(--ink);
+    border: none;
+  }
+  .nav-login-btn:hover { background: #e0b96a; color: var(--ink); }
+  .nav-logout-btn {
+    background: transparent;
+    color: rgba(245,240,232,0.6);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .nav-logout-btn:hover { color: var(--rust); border-color: rgba(201,75,43,0.4); }
+
   .theme-btn {
-    width: 36px;
-    height: 36px;
+    width: 36px; height: 36px;
     border-radius: 3px;
     border: 1px solid rgba(255,255,255,0.1);
     background: transparent;
@@ -239,7 +252,6 @@ const styles = `
     background: rgba(255,255,255,0.05);
   }
 
-  /* ── SEARCH ── */
   .search-form {
     display: flex;
     align-items: center;
@@ -281,11 +293,9 @@ const styles = `
   .search-btn:hover { color: var(--cream); background: rgba(255,255,255,0.06); }
   .search-btn:disabled { cursor: not-allowed; opacity: 0.4; }
 
-  /* ── NO RESULTS TOAST ── */
   .no-results-pill {
     position: fixed;
-    top: 76px;
-    right: 32px;
+    top: 76px; right: 32px;
     background: var(--ink);
     border: 1px solid rgba(201,75,43,0.4);
     color: var(--cream);
@@ -304,58 +314,14 @@ const styles = `
     from { opacity: 0; transform: translateY(-10px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  .no-results-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--rust);
-    flex-shrink: 0;
-  }
+  .no-results-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rust); flex-shrink: 0; }
 
-  /* ── AUTH BUTTON ── */
-  .nav-auth-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 14px;
-    border-radius: 3px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    white-space: nowrap;
-    text-decoration: none;
-    transition: all 0.2s;
-  }
-  .nav-login-btn {
-    background: #d4a853;
-    color: #0d0d0d;
-    border: none;
-  }
-  .nav-login-btn:hover { background: #e0b96a; color: #0d0d0d; }
-  .nav-logout-btn {
-    background: transparent;
-    color: rgba(245,240,232,0.6);
-    border: 1px solid rgba(255,255,255,0.12);
-  }
-  .nav-logout-btn:hover { color: #c94b2b; border-color: rgba(201,75,43,0.4); }
-  .nav-username {
-    font-size: 12px;
-    color: rgba(245,240,232,0.45);
-    font-weight: 500;
-    white-space: nowrap;
-  }
-
-  /* ── MOBILE TOGGLE ── */
   .mobile-toggle {
     display: none;
     background: none;
     border: 1px solid rgba(255,255,255,0.15);
     color: var(--cream);
-    width: 36px;
-    height: 36px;
+    width: 36px; height: 36px;
     border-radius: 3px;
     cursor: pointer;
     align-items: center;
@@ -366,13 +332,11 @@ const styles = `
   }
   .mobile-toggle:hover { background: rgba(255,255,255,0.07); }
 
-  /* ── MOBILE DRAWER ── */
   .mobile-drawer {
     display: none;
     position: fixed;
     top: var(--nav-height);
-    left: 0;
-    right: 0;
+    left: 0; right: 0;
     background: var(--ink);
     border-top: 1px solid rgba(255,255,255,0.07);
     padding: 16px 24px 24px;
@@ -427,19 +391,14 @@ const styles = `
     font-weight: 500;
     color: rgba(245,240,232,0.6);
     cursor: pointer;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    transition: background 0.15s, color 0.15s;
     font-family: 'DM Sans', sans-serif;
-    border: none;
     width: 100%;
   }
   .mobile-cat-item:hover { background: rgba(255,255,255,0.08); color: var(--cream); }
   .mobile-cat-item.selected { background: rgba(212,168,83,0.12); color: var(--gold); border: 1px solid rgba(212,168,83,0.3); }
 
-  .mobile-search-form {
-    display: flex;
-    gap: 8px;
-    margin-top: 8px;
-  }
+  .mobile-search-form { display: flex; gap: 8px; margin-top: 8px; }
   .mobile-search-input {
     flex: 1;
     background: rgba(255,255,255,0.06);
@@ -470,10 +429,8 @@ const styles = `
   .mobile-search-btn:hover { background: var(--gold); }
   .mobile-search-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* spinner */
   .search-spinner {
-    width: 13px;
-    height: 13px;
+    width: 13px; height: 13px;
     border: 2px solid rgba(245,240,232,0.2);
     border-top-color: var(--cream);
     border-radius: 50%;
@@ -481,9 +438,8 @@ const styles = `
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── RESPONSIVE ── */
   @media (max-width: 900px) {
-    .nav-links, .nav-divider, .search-form, .nav-cart, .theme-btn, .cat-pill {
+    .nav-links, .nav-divider, .search-form, .nav-cart, .theme-btn, .cat-pill, .nav-username, .nav-auth-btn {
       display: none !important;
     }
     .mobile-toggle { display: flex; }
@@ -511,10 +467,6 @@ const Navbar = ({ onSelectCategory }) => {
   const baseUrl = import.meta.env.VITE_BASE_URL;
 
   useEffect(() => {
-    fetchInitialData();
-  }, []);
-
-  useEffect(() => {
     const handleClickOutside = (event) => {
       if (navbarRef.current && !navbarRef.current.contains(event.target)) {
         setIsNavCollapsed(true);
@@ -527,22 +479,12 @@ const Navbar = ({ onSelectCategory }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // auto-dismiss no-results
   useEffect(() => {
     if (showNoProductsMessage) {
       const t = setTimeout(() => setShowNoProductsMessage(false), 3000);
       return () => clearTimeout(t);
     }
   }, [showNoProductsMessage]);
-
-  const fetchInitialData = async () => {
-    try {
-      const response = await axios.get(`${baseUrl}/api/products`);
-      //console.log(response.data, "navbar initial data");
-    } catch (error) {
-      console.error("Error fetching initial data:", error);
-    }
-  };
 
   const handleNavbarToggle = () => setIsNavCollapsed(!isNavCollapsed);
   const handleLinkClick = () => setIsNavCollapsed(true);
@@ -556,9 +498,7 @@ const Navbar = ({ onSelectCategory }) => {
     setIsNavCollapsed(true);
     setCatOpen(false);
     try {
-      const response = await axios.get(
-        `${baseUrl}/api/products/search?keyword=${input}`,
-      );
+      const response = await axios.get(`/api/products/search?keyword=${input}`);
       setSearchResults(response.data);
       if (response.data.length === 0) {
         setNoResults(true);
@@ -581,6 +521,12 @@ const Navbar = ({ onSelectCategory }) => {
     setCatOpen(false);
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+    setIsNavCollapsed(true);
+  };
+
   const toggleTheme = () => {
     const newTheme = theme === "dark-theme" ? "light-theme" : "dark-theme";
     setTheme(newTheme);
@@ -599,14 +545,12 @@ const Navbar = ({ onSelectCategory }) => {
     "Toys",
     "Fashion",
   ];
-
   const isDark = theme === "dark-theme";
 
   return (
     <>
       <style>{styles}</style>
 
-      {/* ── No results pill ── */}
       {showNoProductsMessage && (
         <div className="no-results-pill">
           <div className="no-results-dot" />
@@ -617,15 +561,14 @@ const Navbar = ({ onSelectCategory }) => {
       <nav className="nav-shell" ref={navbarRef}>
         {/* Brand */}
         <a className="nav-brand" href="/">
-          Multi<em>Verse</em>
+          Telu<em>sko</em>
         </a>
-
         <div className="nav-divider" />
 
         {/* Desktop links */}
         <ul className="nav-links">
           <li>
-            <a href="/" className="active" onClick={handleLinkClick}>
+            <a href="/" onClick={handleLinkClick}>
               <svg
                 width="13"
                 height="13"
@@ -642,24 +585,26 @@ const Navbar = ({ onSelectCategory }) => {
               Home
             </a>
           </li>
-          <li>
-            <a href="/add_product" onClick={handleLinkClick}>
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-              Add Product
-            </a>
-          </li>
+          {user && (
+            <li>
+              <a href="/add_product" onClick={handleLinkClick}>
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Add Product
+              </a>
+            </li>
+          )}
           <li>
             <a href="/orders" onClick={handleLinkClick}>
               <svg
@@ -719,7 +664,6 @@ const Navbar = ({ onSelectCategory }) => {
               <polyline points="6 9 12 15 18 9" />
             </svg>
           </button>
-
           <div className={`cat-dropdown ${catOpen ? "show" : ""}`}>
             {categories.map((cat) => (
               <button
@@ -747,7 +691,6 @@ const Navbar = ({ onSelectCategory }) => {
 
         {/* Right side */}
         <div className="nav-right">
-          {/* Cart */}
           <a href="/cart" className="nav-cart" onClick={handleLinkClick}>
             <svg
               width="14"
@@ -766,7 +709,6 @@ const Navbar = ({ onSelectCategory }) => {
             Cart
           </a>
 
-          {/* Theme toggle */}
           <button
             className="theme-btn"
             onClick={toggleTheme}
@@ -809,7 +751,6 @@ const Navbar = ({ onSelectCategory }) => {
             )}
           </button>
 
-          {/* Search */}
           <form className="search-form" onSubmit={handleSubmit}>
             <input
               className="search-input"
@@ -839,7 +780,51 @@ const Navbar = ({ onSelectCategory }) => {
             </button>
           </form>
 
-          {/* Mobile hamburger */}
+          {/* Auth — show username + logout if logged in, else Login button */}
+          {user ? (
+            <>
+              <span className="nav-username">Hi, {user.username}</span>
+              <button
+                className="nav-auth-btn nav-logout-btn"
+                onClick={handleLogout}
+              >
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link to="/login" className="nav-auth-btn nav-login-btn">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                <polyline points="10 17 15 12 10 7" />
+                <line x1="15" y1="12" x2="3" y2="12" />
+              </svg>
+              Login
+            </Link>
+          )}
+
           <button
             className="mobile-toggle"
             onClick={handleNavbarToggle}
@@ -877,77 +862,45 @@ const Navbar = ({ onSelectCategory }) => {
         </div>
       </nav>
 
-      {/* ── Mobile Drawer ── */}
+      {/* Mobile Drawer */}
       <div className={`mobile-drawer ${!isNavCollapsed ? "open" : ""}`}>
         <a href="/" className="mobile-link" onClick={handleLinkClick}>
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-            <polyline points="9 22 9 12 15 12 15 22" />
-          </svg>
           Home
         </a>
-        <a
-          href="/add_product"
-          className="mobile-link"
-          onClick={handleLinkClick}
-        >
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+        {user && (
+          <a
+            href="/add_product"
+            className="mobile-link"
+            onClick={handleLinkClick}
           >
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          Add Product
-        </a>
+            Add Product
+          </a>
+        )}
         <a href="/orders" className="mobile-link" onClick={handleLinkClick}>
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-            <polyline points="14 2 14 8 20 8" />
-          </svg>
           Orders
         </a>
         <a href="/cart" className="mobile-link" onClick={handleLinkClick}>
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="9" cy="21" r="1" />
-            <circle cx="20" cy="21" r="1" />
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-          </svg>
           Cart
         </a>
+        {user ? (
+          <button
+            className="mobile-link"
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "var(--rust)",
+              textAlign: "left",
+            }}
+            onClick={handleLogout}
+          >
+            Logout ({user.username})
+          </button>
+        ) : (
+          <a href="/login" className="mobile-link" onClick={handleLinkClick}>
+            Login
+          </a>
+        )}
 
         <div className="mobile-cats-label">Browse by Category</div>
         <div className="mobile-cat-grid">
@@ -964,20 +917,14 @@ const Navbar = ({ onSelectCategory }) => {
         {selectedCategory && (
           <button
             className="mobile-cat-item"
-            style={{
-              width: "100%",
-              color: "var(--muted)",
-              fontSize: 11,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-            }}
+            style={{ width: "100%", color: "var(--muted)", fontSize: 11 }}
             onClick={() => handleCategorySelect("")}
           >
             Clear filter
           </button>
         )}
 
-        <div className="mobile-search-form" style={{ marginTop: 4 }}>
+        <div className="mobile-search-form">
           <input
             className="mobile-search-input"
             type="search"
