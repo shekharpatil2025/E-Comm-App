@@ -16,6 +16,7 @@ import Navbar from "./components/Navbar/Navbar";
 // Pages
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/LoginPage";
+import NotFound from "./pages/Login/NotFound";
 import Register from "./pages/Register/RegisterPage";
 import Product from "./pages/Product/Product";
 import Cart from "./pages/Cart/Cart";
@@ -45,84 +46,73 @@ function AppRoutes() {
 
   return (
     <BrowserRouter>
-      <ToastContainer autoClose={2000} hideProgressBar={true} />
+      <ToastContainer autoClose={2000} hideProgressBar />
 
-      <Routes>
-        {/* Public Routes */}
-        <Route
-          path="/login"
-          element={
-            <PublicOnlyRoute>
-              <Login />
-            </PublicOnlyRoute>
-          }
-        />
+      <Navbar onSelectCategory={handleCategorySelect} />
 
-        <Route
-          path="/register"
-          element={
-            <PublicOnlyRoute>
-              <Register />
-            </PublicOnlyRoute>
-          }
-        />
+      <div className="min-vh-100 bg-light" style={{ paddingTop: "62px" }}>
+        <Routes>
+          <Route
+            path="/login"
+            element={
+              <PublicOnlyRoute>
+                <Login />
+              </PublicOnlyRoute>
+            }
+          />
 
-        {/* All other routes */}
-        <Route
-          path="*"
-          element={
-            <>
-              <Navbar onSelectCategory={handleCategorySelect} />
+          <Route
+            path="/register"
+            element={
+              <PublicOnlyRoute>
+                <Register />
+              </PublicOnlyRoute>
+            }
+          />
 
-              <div
-                className="min-vh-100 bg-light"
-                style={{ paddingTop: "62px" }}
-              >
-                <Routes>
-                  <Route
-                    path="/"
-                    element={<Home selectedCategory={selectedCategory} />}
-                  />
+          <Route
+            path="/"
+            element={<Home selectedCategory={selectedCategory} />}
+          />
 
-                  <Route path="/product" element={<Product />} />
-                  <Route path="/product/:id" element={<Product />} />
+          <Route path="/product" element={<Product />} />
+          <Route path="/product/:id" element={<Product />} />
 
-                  <Route path="/cart" element={<Cart />} />
+          <Route path="/cart" element={<Cart />} />
 
-                  <Route path="/search-results" element={<SearchResults />} />
+          <Route path="/search-results" element={<SearchResults />} />
 
-                  <Route
-                    path="/orders"
-                    element={
-                      <ProtectedRoute>
-                        <Order />
-                      </ProtectedRoute>
-                    }
-                  />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <Order />
+              </ProtectedRoute>
+            }
+          />
 
-                  <Route
-                    path="/add_product"
-                    element={
-                      <ProtectedRoute>
-                        <AddProduct />
-                      </ProtectedRoute>
-                    }
-                  />
+          <Route
+            path="/add_product"
+            element={
+              <ProtectedRoute>
+                <AddProduct />
+              </ProtectedRoute>
+            }
+          />
 
-                  <Route
-                    path="/product/update/:id"
-                    element={
-                      <ProtectedRoute>
-                        <UpdateProduct />
-                      </ProtectedRoute>
-                    }
-                  />
-                </Routes>
-              </div>
-            </>
-          }
-        />
-      </Routes>
+          <Route
+            path="/product/update/:id"
+            element={
+              <ProtectedRoute>
+                <UpdateProduct />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Keep this LAST */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
     </BrowserRouter>
   );
 }

@@ -561,7 +561,7 @@ const Navbar = ({ onSelectCategory }) => {
       <nav className="nav-shell" ref={navbarRef}>
         {/* Brand */}
         <a className="nav-brand" href="/">
-          Telu<em>sko</em>
+          Multi<em>Verse</em>
         </a>
         <div className="nav-divider" />
 
