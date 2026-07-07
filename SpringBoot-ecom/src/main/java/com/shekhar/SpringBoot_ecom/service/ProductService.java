@@ -15,7 +15,7 @@ public class ProductService {
     @Autowired
     private ProductRepo repo;
     public List<Product> getAllProducts() {
-        return repo.findAll();
+        return repo.findByProductAvailableTrue();
     }
 
     public Product getProductById(int id) {
@@ -30,7 +30,14 @@ public class ProductService {
     }
 
     public void deleteProduct(int id) {
-        repo.deleteById(id);
+        Product product = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+
+        // Soft delete — mark as unavailable instead of removing from DB.
+        // Hard delete breaks FK constraint if product has been ordered before.
+        product.setProductAvailable(false);
+        product.setStockQuantity(0);
+        repo.save(product);
     }
 
     public List<Product> SearchProduct(String keyword) {
