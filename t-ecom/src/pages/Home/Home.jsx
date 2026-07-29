@@ -399,7 +399,7 @@ const Home = ({ selectedCategory }) => {
   }, [refreshData, isDataFetched]);
 
   useEffect(() => {
-    console.log(data, "data from home page");
+    //console.log(data, "data from home page");
   }, [data]);
 
   useEffect(() => {

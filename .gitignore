@@ -1,0 +1,39 @@
+# ── SPRING BOOT (Backend) ────────────────────────────────
+SpringBoot-ecom/target/
+SpringBoot-ecom/.mvn/wrapper/maven-wrapper.jar
+SpringBoot-ecom/HELP.md
+
+# IDE
+SpringBoot-ecom/.idea/
+SpringBoot-ecom/*.iws
+SpringBoot-ecom/*.iml
+SpringBoot-ecom/*.ipr
+SpringBoot-ecom/.apt_generated
+SpringBoot-ecom/.classpath
+SpringBoot-ecom/.factorypath
+SpringBoot-ecom/.project
+SpringBoot-ecom/.settings/
+SpringBoot-ecom/.springBeans
+SpringBoot-ecom/.sts4-cache/
+SpringBoot-ecom/.vscode/
+
+# !! SENSITIVE — never push these !!
+SpringBoot-ecom/src/main/resources/application.properties
+SpringBoot-ecom/src/main/resources/application-prod.properties
+SpringBoot-ecom/src/main/resources/application-dev.properties
+
+# ── REACT / VITE (Frontend) ──────────────────────────────
+t-ecom/node_modules/
+t-ecom/dist/
+t-ecom/.env
+t-ecom/.env.local
+t-ecom/.env.production
+t-ecom/.vscode/
+
+# Vite cache
+t-ecom/.vite/
+
+# ── GENERAL ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.log

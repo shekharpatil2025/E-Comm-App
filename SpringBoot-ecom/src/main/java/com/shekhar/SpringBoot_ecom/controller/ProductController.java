@@ -44,15 +44,16 @@ public class ProductController{
         }
     }
 
-    @GetMapping("product/{id}/image")
+    @GetMapping("/product/{id}/image")
     public ResponseEntity<byte[]> getProductImage(@PathVariable int id) {
         Product product = productService.getProductById(id);
         byte[] image = product.getImageData();
         return new ResponseEntity<>(image,HttpStatus.OK);
     }
 
-    @PutMapping("product/{id}")
-    public ResponseEntity<String> updateProduct(@PathVariable int id,@RequestPart Product product,@RequestPart MultipartFile imageFile) throws IOException {
+    @PutMapping("/product/{id}")
+    public ResponseEntity<String> updateProduct(@PathVariable int id,@RequestPart Product product,@RequestPart(required = false) MultipartFile imageFile) throws IOException {
+
         Product productupdate= null;
         try {
             productupdate = productService.addOrUpdateProduct(product,imageFile);
@@ -73,7 +74,7 @@ public class ProductController{
         }
     }
 
-    @GetMapping("products/search")
+    @GetMapping("/products/search")
     public ResponseEntity<List<Product>> getProductsByName(@RequestParam String keyword){
         List<Product> product=productService.SearchProduct(keyword);
         System.out.println("searching for "+ keyword);

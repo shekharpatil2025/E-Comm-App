@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import axios from "../../axios";
 import { toast } from "react-toastify";
 
 const styles = `
@@ -438,9 +438,15 @@ const UpdateProduct = () => {
   const [image, setImage] = useState();
   const [imagePreviewUrl, setImagePreviewUrl] = useState("");
   const [updateProduct, setUpdateProduct] = useState({
-    id: null, name: "", description: "", brand: "",
-    price: "", category: "", releaseDate: "",
-    productAvailable: false, stockQuantity: "",
+    id: null,
+    name: "",
+    description: "",
+    brand: "",
+    price: "",
+    category: "",
+    releaseDate: "",
+    productAvailable: false,
+    stockQuantity: "",
   });
   const [imageChanged, setImageChanged] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -455,8 +461,14 @@ const UpdateProduct = () => {
       try {
         const response = await axios.get(`${baseUrl}/api/product/${id}`);
         setProduct(response.data);
-        const responseImage = await axios.get(`${baseUrl}/api/product/${id}/image`, { responseType: "blob" });
-        const imageFile = await converUrlToFile(responseImage.data, response.data.imageName);
+        const responseImage = await axios.get(
+          `${baseUrl}/api/product/${id}/image`,
+          { responseType: "blob" },
+        );
+        const imageFile = await converUrlToFile(
+          responseImage.data,
+          response.data.imageName,
+        );
         setImage(imageFile);
         setImagePreviewUrl(URL.createObjectURL(responseImage.data));
         setUpdateProduct(response.data);
@@ -477,10 +489,11 @@ const UpdateProduct = () => {
     const updatedProduct = new FormData();
     if (imageChanged && image) {
       updatedProduct.append("imageFile", image);
-    } else {
-      updatedProduct.append("imageFile", null);
     }
-    updatedProduct.append("product", new Blob([JSON.stringify(updateProduct)], { type: "application/json" }));
+    updatedProduct.append(
+      "product",
+      new Blob([JSON.stringify(updateProduct)], { type: "application/json" }),
+    );
 
     axios
       .put(`${baseUrl}/api/product/${id}`, updatedProduct, {
@@ -488,7 +501,10 @@ const UpdateProduct = () => {
       })
       .then(() => toast.success("Product updated successfully"))
       .catch(() => toast.error("Failed to update product. Please try again."))
-      .finally(() => { setLoading(false); navigate('/'); });
+      .finally(() => {
+        setLoading(false);
+        navigate("/");
+      });
   };
 
   const handleChange = (e) => {
@@ -506,10 +522,10 @@ const UpdateProduct = () => {
   };
 
   const formatBytes = (bytes) => {
-    if (!bytes) return '';
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    if (!bytes) return "";
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   };
 
   if (!product.id) {
@@ -530,21 +546,28 @@ const UpdateProduct = () => {
     <>
       <style>{styles}</style>
       <div className="up-wrapper">
-
         {/* ── Header ── */}
         <div className="up-header">
           <div className="up-eyebrow">Inventory · Edit</div>
-          <h1 className="up-title">Update <em>product</em></h1>
+          <h1 className="up-title">
+            Update <em>product</em>
+          </h1>
           <div className="up-ghost">✎</div>
         </div>
 
         {/* ── Context strip ── */}
         {imagePreviewUrl && (
           <div className="up-context-strip">
-            <img className="up-context-img" src={imagePreviewUrl} alt={product.name} />
+            <img
+              className="up-context-img"
+              src={imagePreviewUrl}
+              alt={product.name}
+            />
             <div>
               <div className="up-context-name">{product.name}</div>
-              <div className="up-context-id">ID #{id} · {product.category}</div>
+              <div className="up-context-id">
+                ID #{id} · {product.category}
+              </div>
             </div>
             <span className="up-context-badge">Editing</span>
           </div>
@@ -552,7 +575,6 @@ const UpdateProduct = () => {
 
         <div className="up-body">
           <form noValidate onSubmit={handleSubmit}>
-
             {/* ── Basic Info ── */}
             <div className="up-section-label">Basic Information</div>
             <div className="up-grid" style={{ marginBottom: 32 }}>
@@ -655,7 +677,11 @@ const UpdateProduct = () => {
                   type="date"
                   name="releaseDate"
                   className="up-input"
-                  value={updateProduct.releaseDate ? updateProduct.releaseDate.slice(0, 10) : ''}
+                  value={
+                    updateProduct.releaseDate
+                      ? updateProduct.releaseDate.slice(0, 10)
+                      : ""
+                  }
                   onChange={handleChange}
                   required
                 />
@@ -664,25 +690,41 @@ const UpdateProduct = () => {
                 <label className="up-label">Product Status</label>
                 <div
                   className="toggle-row"
-                  onClick={() => setUpdateProduct({ ...updateProduct, productAvailable: !updateProduct.productAvailable })}
+                  onClick={() =>
+                    setUpdateProduct({
+                      ...updateProduct,
+                      productAvailable: !updateProduct.productAvailable,
+                    })
+                  }
                 >
-                  <div className={`toggle-track ${updateProduct.productAvailable ? 'on' : ''}`}>
+                  <div
+                    className={`toggle-track ${updateProduct.productAvailable ? "on" : ""}`}
+                  >
                     <div className="toggle-thumb" />
                   </div>
                   <span className="toggle-label-text">Mark as Available</span>
                   <span
                     className="toggle-status"
-                    style={{ color: updateProduct.productAvailable ? 'var(--sage)' : 'var(--muted)' }}
+                    style={{
+                      color: updateProduct.productAvailable
+                        ? "var(--sage)"
+                        : "var(--muted)",
+                    }}
                   >
-                    {updateProduct.productAvailable ? 'Live' : 'Hidden'}
+                    {updateProduct.productAvailable ? "Live" : "Hidden"}
                   </span>
                 </div>
                 <input
                   type="checkbox"
                   name="productAvailable"
                   checked={updateProduct.productAvailable}
-                  onChange={(e) => setUpdateProduct({ ...updateProduct, productAvailable: e.target.checked })}
-                  style={{ display: 'none' }}
+                  onChange={(e) =>
+                    setUpdateProduct({
+                      ...updateProduct,
+                      productAvailable: e.target.checked,
+                    })
+                  }
+                  style={{ display: "none" }}
                 />
               </div>
             </div>
@@ -691,30 +733,59 @@ const UpdateProduct = () => {
             <div className="up-section-label">Product Image</div>
             <div className="up-field" style={{ marginBottom: 36 }}>
               <div className="up-image-zone">
-                <input type="file" accept="image/jpeg,image/png" onChange={handleImageChange} />
-                {imageChanged && <div className="up-changed-tag">New Image</div>}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  onChange={handleImageChange}
+                />
+                {imageChanged && (
+                  <div className="up-changed-tag">New Image</div>
+                )}
                 {imagePreviewUrl ? (
                   <div className="up-image-with-preview">
-                    <img src={imagePreviewUrl} alt="Preview" className="up-preview-img" />
+                    <img
+                      src={imagePreviewUrl}
+                      alt="Preview"
+                      className="up-preview-img"
+                    />
                     <div className="up-preview-meta">
-                      <div className="up-preview-name">{image?.name || product.imageName}</div>
-                      <div className="up-preview-sub">
-                        {imageChanged ? `${formatBytes(image?.size)} · New image selected` : 'Current image · click to replace'}
+                      <div className="up-preview-name">
+                        {image?.name || product.imageName}
                       </div>
-                      <button type="button" className="up-preview-change">Change image</button>
+                      <div className="up-preview-sub">
+                        {imageChanged
+                          ? `${formatBytes(image?.size)} · New image selected`
+                          : "Current image · click to replace"}
+                      </div>
+                      <button type="button" className="up-preview-change">
+                        Change image
+                      </button>
                     </div>
                   </div>
                 ) : (
                   <div className="up-upload-placeholder">
                     <div className="up-upload-icon">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="16 16 12 12 8 16"/>
-                        <line x1="12" y1="12" x2="12" y2="21"/>
-                        <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="16 16 12 12 8 16" />
+                        <line x1="12" y1="12" x2="12" y2="21" />
+                        <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
                       </svg>
                     </div>
-                    <div className="up-upload-title">Drop a new image or click to browse</div>
-                    <div className="up-upload-hint">JPEG or PNG · Max 5 MB · Leave unchanged to keep current</div>
+                    <div className="up-upload-title">
+                      Drop a new image or click to browse
+                    </div>
+                    <div className="up-upload-hint">
+                      JPEG or PNG · Max 5 MB · Leave unchanged to keep current
+                    </div>
                   </div>
                 )}
               </div>
@@ -722,10 +793,18 @@ const UpdateProduct = () => {
 
             {/* ── Submit ── */}
             <div className="up-submit-row">
-              <button type="button" className="up-btn-cancel" onClick={() => navigate('/')}>
+              <button
+                type="button"
+                className="up-btn-cancel"
+                onClick={() => navigate("/")}
+              >
                 Cancel
               </button>
-              <button type="submit" className="up-btn-submit" disabled={loading}>
+              <button
+                type="submit"
+                className="up-btn-submit"
+                disabled={loading}
+              >
                 {loading ? (
                   <>
                     <span className="up-spinner" />
@@ -733,17 +812,25 @@ const UpdateProduct = () => {
                   </>
                 ) : (
                   <>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                      <polyline points="17 21 17 13 7 13 7 21"/>
-                      <polyline points="7 3 7 8 15 8"/>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                      <polyline points="17 21 17 13 7 13 7 21" />
+                      <polyline points="7 3 7 8 15 8" />
                     </svg>
                     Save Changes
                   </>
                 )}
               </button>
             </div>
-
           </form>
         </div>
       </div>
