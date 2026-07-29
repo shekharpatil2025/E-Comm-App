@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axios from "../../axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -446,7 +446,10 @@ const AddProduct = () => {
       reader.readAsDataURL(file);
       const validTypes = ["image/jpeg", "image/png"];
       if (!validTypes.includes(file.type)) {
-        setErrors({ ...errors, image: "Please select a valid image file (JPEG or PNG)" });
+        setErrors({
+          ...errors,
+          image: "Please select a valid image file (JPEG or PNG)",
+        });
       } else if (file.size > 5 * 1024 * 1024) {
         setErrors({ ...errors, image: "Image size should be less than 5MB" });
       } else {
@@ -461,11 +464,15 @@ const AddProduct = () => {
     const newErrors = {};
     if (!product.name.trim()) newErrors.name = "Product name is required";
     if (!product.brand.trim()) newErrors.brand = "Brand is required";
-    if (!product.description.trim()) newErrors.description = "Description is required";
-    if (!product.price || parseFloat(product.price) <= 0) newErrors.price = "Price must be greater than zero";
+    if (!product.description.trim())
+      newErrors.description = "Description is required";
+    if (!product.price || parseFloat(product.price) <= 0)
+      newErrors.price = "Price must be greater than zero";
     if (!product.category) newErrors.category = "Please select a category";
-    if (!product.stockQuantity || parseInt(product.stockQuantity) < 0) newErrors.stockQuantity = "Stock quantity cannot be negative";
-    if (!product.releaseDate) newErrors.releaseDate = "Release date is required";
+    if (!product.stockQuantity || parseInt(product.stockQuantity) < 0)
+      newErrors.stockQuantity = "Stock quantity cannot be negative";
+    if (!product.releaseDate)
+      newErrors.releaseDate = "Release date is required";
     if (!image) newErrors.image = "Product image is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -482,7 +489,10 @@ const AddProduct = () => {
     setLoading(true);
     const formData = new FormData();
     formData.append("imageFile", image);
-    formData.append("product", new Blob([JSON.stringify(product)], { type: "application/json" }));
+    formData.append(
+      "product",
+      new Blob([JSON.stringify(product)], { type: "application/json" }),
+    );
 
     axios
       .post(`${baseUrl}/api/product`, formData, {
@@ -490,7 +500,16 @@ const AddProduct = () => {
       })
       .then(() => {
         toast.success("Product added successfully");
-        setProduct({ name: "", brand: "", description: "", price: "", category: "", stockQuantity: "", releaseDate: "", productAvailable: false });
+        setProduct({
+          name: "",
+          brand: "",
+          description: "",
+          price: "",
+          category: "",
+          stockQuantity: "",
+          releaseDate: "",
+          productAvailable: false,
+        });
         setImage(null);
         setImagePreview(null);
         setValidated(false);
@@ -520,14 +539,17 @@ const AddProduct = () => {
         {/* ── Header ── */}
         <div className="ap-header">
           <div className="ap-eyebrow">Inventory · Add New</div>
-          <h1 className="ap-title">List a <em>new</em><br />product</h1>
+          <h1 className="ap-title">
+            List a <em>new</em>
+            <br />
+            product
+          </h1>
           <div className="ap-ghost">+</div>
         </div>
 
         {/* ── Form ── */}
         <div className="ap-body">
           <form noValidate onSubmit={submitHandler}>
-
             {/* Basic Info */}
             <div className="ap-section-label">Basic Information</div>
             <div className="ap-grid" style={{ marginBottom: 32 }}>
@@ -536,7 +558,7 @@ const AddProduct = () => {
                 <input
                   type="text"
                   name="name"
-                  className={`ap-input ${errors.name ? 'has-error' : ''}`}
+                  className={`ap-input ${errors.name ? "has-error" : ""}`}
                   value={product.name}
                   onChange={handleInputChange}
                   placeholder="e.g. Wireless Headphones"
@@ -549,24 +571,28 @@ const AddProduct = () => {
                 <input
                   type="text"
                   name="brand"
-                  className={`ap-input ${errors.brand ? 'has-error' : ''}`}
+                  className={`ap-input ${errors.brand ? "has-error" : ""}`}
                   value={product.brand}
                   onChange={handleInputChange}
                   placeholder="e.g. Sony"
                 />
-                {errors.brand && <span className="ap-error">{errors.brand}</span>}
+                {errors.brand && (
+                  <span className="ap-error">{errors.brand}</span>
+                )}
               </div>
 
               <div className="ap-field span2">
                 <label className="ap-label">Description</label>
                 <textarea
                   name="description"
-                  className={`ap-textarea ${errors.description ? 'has-error' : ''}`}
+                  className={`ap-textarea ${errors.description ? "has-error" : ""}`}
                   value={product.description}
                   onChange={handleInputChange}
                   placeholder="Describe the product — features, specifications, what makes it great..."
                 />
-                {errors.description && <span className="ap-error">{errors.description}</span>}
+                {errors.description && (
+                  <span className="ap-error">{errors.description}</span>
+                )}
               </div>
             </div>
 
@@ -578,19 +604,21 @@ const AddProduct = () => {
                 <input
                   type="number"
                   name="price"
-                  className={`ap-input ${errors.price ? 'has-error' : ''}`}
+                  className={`ap-input ${errors.price ? "has-error" : ""}`}
                   value={product.price}
                   onChange={handleInputChange}
                   placeholder="0.00"
                   min="0"
                 />
-                {errors.price && <span className="ap-error">{errors.price}</span>}
+                {errors.price && (
+                  <span className="ap-error">{errors.price}</span>
+                )}
               </div>
 
               <div className="ap-field">
                 <label className="ap-label">Category</label>
                 <select
-                  className={`ap-select ${errors.category ? 'has-error' : ''}`}
+                  className={`ap-select ${errors.category ? "has-error" : ""}`}
                   value={product.category}
                   onChange={handleInputChange}
                   name="category"
@@ -603,7 +631,9 @@ const AddProduct = () => {
                   <option value="Toys">Toys</option>
                   <option value="Fashion">Fashion</option>
                 </select>
-                {errors.category && <span className="ap-error">{errors.category}</span>}
+                {errors.category && (
+                  <span className="ap-error">{errors.category}</span>
+                )}
               </div>
 
               <div className="ap-field">
@@ -611,13 +641,15 @@ const AddProduct = () => {
                 <input
                   type="number"
                   name="stockQuantity"
-                  className={`ap-input ${errors.stockQuantity ? 'has-error' : ''}`}
+                  className={`ap-input ${errors.stockQuantity ? "has-error" : ""}`}
                   value={product.stockQuantity}
                   onChange={handleInputChange}
                   placeholder="0"
                   min="0"
                 />
-                {errors.stockQuantity && <span className="ap-error">{errors.stockQuantity}</span>}
+                {errors.stockQuantity && (
+                  <span className="ap-error">{errors.stockQuantity}</span>
+                )}
               </div>
             </div>
 
@@ -629,25 +661,41 @@ const AddProduct = () => {
                 <input
                   type="date"
                   name="releaseDate"
-                  className={`ap-input ${errors.releaseDate ? 'has-error' : ''}`}
+                  className={`ap-input ${errors.releaseDate ? "has-error" : ""}`}
                   value={product.releaseDate}
                   onChange={handleInputChange}
                 />
-                {errors.releaseDate && <span className="ap-error">{errors.releaseDate}</span>}
+                {errors.releaseDate && (
+                  <span className="ap-error">{errors.releaseDate}</span>
+                )}
               </div>
 
               <div className="ap-field">
                 <label className="ap-label">Product Status</label>
                 <div
                   className="toggle-row"
-                  onClick={() => setProduct({ ...product, productAvailable: !product.productAvailable })}
+                  onClick={() =>
+                    setProduct({
+                      ...product,
+                      productAvailable: !product.productAvailable,
+                    })
+                  }
                 >
-                  <div className={`toggle-track ${product.productAvailable ? 'on' : ''}`}>
+                  <div
+                    className={`toggle-track ${product.productAvailable ? "on" : ""}`}
+                  >
                     <div className="toggle-thumb" />
                   </div>
                   <span className="toggle-label-text">Mark as Available</span>
-                  <span className="toggle-status" style={{ color: product.productAvailable ? 'var(--sage)' : 'var(--muted)' }}>
-                    {product.productAvailable ? 'Live' : 'Hidden'}
+                  <span
+                    className="toggle-status"
+                    style={{
+                      color: product.productAvailable
+                        ? "var(--sage)"
+                        : "var(--muted)",
+                    }}
+                  >
+                    {product.productAvailable ? "Live" : "Hidden"}
                   </span>
                 </div>
                 {/* hidden checkbox for form compatibility */}
@@ -656,7 +704,7 @@ const AddProduct = () => {
                   name="productAvailable"
                   checked={product.productAvailable}
                   onChange={handleInputChange}
-                  style={{ display: 'none' }}
+                  style={{ display: "none" }}
                 />
               </div>
             </div>
@@ -664,27 +712,52 @@ const AddProduct = () => {
             {/* Image Upload */}
             <div className="ap-section-label">Product Image</div>
             <div className="ap-field" style={{ marginBottom: 36 }}>
-              <div className={`image-upload-zone ${errors.image ? 'has-error' : ''}`}>
-                <input type="file" accept="image/jpeg,image/png" onChange={handleImageChange} />
+              <div
+                className={`image-upload-zone ${errors.image ? "has-error" : ""}`}
+              >
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  onChange={handleImageChange}
+                />
                 {imagePreview && image ? (
                   <div className="upload-with-preview">
-                    <img src={imagePreview} alt="Preview" className="preview-img" />
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="preview-img"
+                    />
                     <div className="preview-meta">
                       <div className="preview-name">{image.name}</div>
-                      <div className="preview-size">{formatBytes(image.size)}</div>
-                      <button type="button" className="preview-change">Change image</button>
+                      <div className="preview-size">
+                        {formatBytes(image.size)}
+                      </div>
+                      <button type="button" className="preview-change">
+                        Change image
+                      </button>
                     </div>
                   </div>
                 ) : (
                   <div className="upload-placeholder">
                     <div className="upload-icon">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
                         <polyline points="16 16 12 12 8 16" />
                         <line x1="12" y1="12" x2="12" y2="21" />
                         <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
                       </svg>
                     </div>
-                    <div className="upload-title">Drop image here or click to browse</div>
+                    <div className="upload-title">
+                      Drop image here or click to browse
+                    </div>
                     <div className="upload-hint">JPEG or PNG · Max 5 MB</div>
                   </div>
                 )}
@@ -694,7 +767,11 @@ const AddProduct = () => {
 
             {/* Submit */}
             <div className="submit-row">
-              <button type="button" className="btn-cancel" onClick={() => navigate("/")}>
+              <button
+                type="button"
+                className="btn-cancel"
+                onClick={() => navigate("/")}
+              >
                 Cancel
               </button>
               <button type="submit" className="btn-submit" disabled={loading}>
@@ -705,7 +782,16 @@ const AddProduct = () => {
                   </>
                 ) : (
                   <>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <line x1="12" y1="5" x2="12" y2="19" />
                       <line x1="5" y1="12" x2="19" y2="12" />
                     </svg>
@@ -714,7 +800,6 @@ const AddProduct = () => {
                 )}
               </button>
             </div>
-
           </form>
         </div>
       </div>

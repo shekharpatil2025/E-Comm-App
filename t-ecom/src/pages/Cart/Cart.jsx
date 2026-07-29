@@ -459,6 +459,10 @@ const Cart = () => {
   };
 
   const handleCheckout = async () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
     try {
       for (const item of cartItems) {
         const { imageUrl, imageName, imageData, imageType, quantity, ...rest } =
