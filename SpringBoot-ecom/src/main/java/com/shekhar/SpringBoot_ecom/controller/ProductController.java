@@ -2,6 +2,7 @@ package com.shekhar.SpringBoot_ecom.controller;
 
 import com.shekhar.SpringBoot_ecom.model.Product;
 import com.shekhar.SpringBoot_ecom.service.ProductService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin
+@Tag(name = "Products", description = "Product management — CRUD operations")
 public class ProductController{
 
     @Autowired

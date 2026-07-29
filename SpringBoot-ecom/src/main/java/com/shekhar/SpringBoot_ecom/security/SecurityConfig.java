@@ -74,6 +74,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/hello").permitAll()
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/v3/api-docs",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/search",
                                 "/api/product/{id}", "/api/product/{id}/image").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/product").hasRole("ADMIN")

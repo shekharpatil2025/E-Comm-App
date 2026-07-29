@@ -4,18 +4,17 @@ import com.shekhar.SpringBoot_ecom.model.DTO.AuthResponse;
 import com.shekhar.SpringBoot_ecom.model.DTO.LoginRequest;
 import com.shekhar.SpringBoot_ecom.model.DTO.RegisterRequest;
 import com.shekhar.SpringBoot_ecom.service.AuthService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping("/api/auth")
+@Tag(name = "Authentication", description = "Register and login endpoints")
 public class AuthController {
 
     @Autowired
