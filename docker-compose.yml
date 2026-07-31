@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+
+  # ── PostgreSQL Database ──────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: ecom-postgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Shekhar@45
+    ports:
+      - "5433:5432"   # host:container — use 5433 to avoid conflict with local postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data   # persist data between restarts
+    networks:
+      - ecom-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Spring Boot Backend ──────────────────────────────────────────────
+  backend:
+    build:
+      context: ./SpringBoot-ecom
+      dockerfile: Dockerfile
+    container_name: ecom-backend
+    ports:
+      - "8080:8080"
+    environment:
+      # Override application.properties values for Docker environment
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: Shekhar@45
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      JWT_SECRET: docker-secret-key-minimum-32-characters-long
+      JWT_EXPIRATION_MS: 86400000
+    depends_on:
+      db:
+        condition: service_healthy   # wait for postgres to be ready
+    networks:
+      - ecom-network
+    restart: on-failure
+
+  # ── React Frontend ───────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./t-ecom
+      dockerfile: Dockerfile
+    container_name: ecom-frontend
+    ports:
+      - "3000:80"    # React app available at http://localhost:3000
+    depends_on:
+      - backend
+    networks:
+      - ecom-network
+
+# ── Shared Network ───────────────────────────────────────────────────
+networks:
+  ecom-network:
+    driver: bridge
+
+# ── Named Volume for DB persistence ─────────────────────────────────
+volumes:
+  postgres_data:
