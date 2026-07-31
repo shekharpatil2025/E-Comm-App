@@ -1,5 +1,6 @@
 package com.shekhar.SpringBoot_ecom.controller;
 
+import com.shekhar.SpringBoot_ecom.model.DTO.PageResponse;
 import com.shekhar.SpringBoot_ecom.model.Product;
 import com.shekhar.SpringBoot_ecom.service.ProductService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -25,7 +27,21 @@ public class ProductController{
     public ResponseEntity<List<Product>> getProducts(){
         return new ResponseEntity<> (productService.getAllProducts(), HttpStatus.OK);
     }
-
+    @GetMapping("/products/paged")
+    public ResponseEntity<PageResponse<Product>> getProductsPaginated(
+            @RequestParam(defaultValue = "0")   int page,
+            @RequestParam(defaultValue = "10")  int size,
+            @RequestParam(defaultValue = "id")  String sortBy,
+            @RequestParam(defaultValue = "asc") String direction,
+            @RequestParam(required = false)     String category,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false)     BigDecimal maxPrice
+    ) {
+        PageResponse<Product> response = productService.getProductsPaginated(
+                page, size, sortBy, direction, category, minPrice, maxPrice
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
     @GetMapping("/product/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable int id) {
         Product product = productService.getProductById(id);

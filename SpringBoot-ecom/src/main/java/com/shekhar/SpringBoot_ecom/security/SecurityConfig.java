@@ -83,6 +83,7 @@ public class SecurityConfig {
                                 "/webjars/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/search",
+                                "/api/products/paged",
                                 "/api/product/{id}", "/api/product/{id}/image").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/product").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/product/**").hasRole("ADMIN")

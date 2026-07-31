@@ -1,7 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AppContext from "../../Context/Context";
-import unplugged from "../../assets/unplugged.png";
+import axios from "../../axios";
+import { toast } from "react-toastify";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -9,573 +10,805 @@ const styles = `
   :root {
     --ink: #0d0d0d;
     --cream: #f5f0e8;
-    --rust: #c94b2b;
     --gold: #d4a853;
+    --rust: #c94b2b;
     --sage: #4a6741;
     --card-bg: #ffffff;
     --muted: #888;
     --border: #e0dbd0;
+    --nav-height: 62px;
   }
 
   .home-wrapper {
     background: var(--cream);
     min-height: 100vh;
+    padding-top: var(--nav-height);
     font-family: 'DM Sans', sans-serif;
-    padding-top: 62px;
   }
 
-  /* ── HERO STRIP*/
-  .hero-strip {
+  /* ── HERO ── */
+  .home-hero {
     background: var(--ink);
-    color: var(--cream);
-    padding: 64px 40px 48px;
+    padding: 48px 48px 36px;
     position: relative;
     overflow: hidden;
   }
-  .hero-strip::before {
+  .home-hero::before {
     content: '';
     position: absolute;
     inset: 0;
     background: repeating-linear-gradient(
-      -45deg,
-      transparent,
-      transparent 40px,
-      rgba(255,255,255,0.015) 40px,
-      rgba(255,255,255,0.015) 80px
+      -45deg, transparent, transparent 40px,
+      rgba(255,255,255,0.012) 40px, rgba(255,255,255,0.012) 80px
     );
   }
-  .hero-eyebrow {
-    font-family: 'DM Sans', sans-serif;
+  .home-eyebrow {
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.35em;
     text-transform: uppercase;
     color: var(--gold);
-    margin-bottom: 16px;
+    margin-bottom: 10px;
+    position: relative;
   }
-  .hero-title {
+  .home-title {
     font-family: 'Playfair Display', serif;
-    font-size: clamp(36px, 6vw, 76px);
+    font-size: clamp(28px, 4vw, 52px);
     font-weight: 900;
-    line-height: 0.95;
-    letter-spacing: -0.02em;
-    margin: 0;
-  }
-  .hero-title em {
-    font-style: italic;
-    color: var(--gold);
-  }
-  .hero-sub {
-    margin-top: 20px;
-    font-size: 15px;
-    color: rgba(245,240,232,0.55);
-    max-width: 380px;
-    line-height: 1.6;
-  }
-  .hero-count {
-    position: absolute;
-    bottom: 24px;
-    right: 40px;
-    font-family: 'Playfair Display', serif;
-    font-size: 80px;
-    font-weight: 900;
-    color: rgba(255,255,255,0.04);
+    color: var(--cream);
+    margin: 0 0 8px;
     line-height: 1;
-    user-select: none;
+    position: relative;
   }
+  .home-title em { font-style: italic; color: var(--gold); }
+  .home-subtitle {
+    font-size: 14px;
+    color: rgba(245,240,232,0.4);
+    position: relative;
+  }
+  .home-subtitle strong { color: rgba(245,240,232,0.75); }
 
-  /* ── FILTER CHIPS ── */
-  .filter-row {
-    padding: 20px 40px;
-    background: var(--ink);
-    border-top: 1px solid rgba(255,255,255,0.08);
-    display: flex;
-    gap: 10px;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .filter-row::-webkit-scrollbar { display: none; }
-  .chip {
-    flex-shrink: 0;
-    background: transparent;
-    border: 1px solid rgba(255,255,255,0.2);
-    color: rgba(245,240,232,0.6);
-    padding: 6px 16px;
-    border-radius: 100px;
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.05em;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .chip.active, .chip:hover {
-    background: var(--gold);
-    border-color: var(--gold);
-    color: var(--ink);
-  }
-
-  /* ── PRODUCT GRID ── */
-  .products-section {
-    padding: 48px 32px;
-  }
-  .section-label {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 32px;
+  /* ── FILTERS BAR ── */
+  .filter-bar {
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 48px;
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-wrap: wrap;
   }
-  .section-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .products-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 24px;
-  }
-
-  /* ── PRODUCT CARD ── */
-  .product-card {
-    background: var(--card-bg);
-    border-radius: 4px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1),
-                box-shadow 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-    position: relative;
-    cursor: pointer;
-    animation: fadeUp 0.5s ease both;
-  }
-  .product-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 20px 50px rgba(13,13,13,0.12);
-  }
-  .product-card.unavailable {
-    opacity: 0.6;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  /* staggered animation */
-  .product-card:nth-child(1) { animation-delay: 0.05s; }
-  .product-card:nth-child(2) { animation-delay: 0.10s; }
-  .product-card:nth-child(3) { animation-delay: 0.15s; }
-  .product-card:nth-child(4) { animation-delay: 0.20s; }
-  .product-card:nth-child(5) { animation-delay: 0.25s; }
-  .product-card:nth-child(6) { animation-delay: 0.30s; }
-  .product-card:nth-child(7) { animation-delay: 0.35s; }
-  .product-card:nth-child(8) { animation-delay: 0.40s; }
-
-  .img-wrapper {
-    position: relative;
-    height: 200px;
-    background: #f8f6f2;
-    overflow: hidden;
-  }
-  .img-wrapper img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-  }
-  .product-card:hover .img-wrapper img {
-    transform: scale(1.06);
-  }
-
-  .oos-badge {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    background: var(--ink);
-    color: var(--cream);
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 4px 10px;
-    border-radius: 2px;
-  }
-  .new-badge {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: var(--rust);
-    color: white;
+  .filter-label {
     font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 4px 10px;
-    border-radius: 2px;
-  }
-
-  .card-body {
-    padding: 18px 20px 20px;
-  }
-  .card-brand {
-    font-size: 10px;
-    font-weight: 600;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--muted);
-    margin-bottom: 6px;
-  }
-  .card-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 17px;
-    font-weight: 700;
-    color: var(--ink);
-    line-height: 1.25;
-    margin-bottom: 14px;
-    text-decoration: none;
-    display: block;
-  }
-  .card-footer-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-  }
-  .card-price {
-    font-family: 'Playfair Display', serif;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--ink);
-  }
-  .card-price span {
-    font-size: 13px;
-    font-weight: 400;
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  .btn-cart {
+    margin-right: 4px;
     flex-shrink: 0;
+  }
+  .filter-select, .filter-input {
+    background: var(--cream);
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    padding: 7px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+    cursor: pointer;
+  }
+  .filter-select:focus, .filter-input:focus { border-color: var(--ink); }
+  .filter-input { width: 110px; }
+  .filter-input::placeholder { color: var(--muted); }
+  .filter-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--border);
+    flex-shrink: 0;
+    margin: 0 4px;
+  }
+  .filter-btn-apply {
+    padding: 7px 18px;
     background: var(--ink);
     color: var(--cream);
     border: none;
-    padding: 10px 18px;
     border-radius: 3px;
-    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .filter-btn-apply:hover { background: var(--gold); color: var(--ink); }
+  .filter-btn-reset {
+    padding: 7px 14px;
+    background: transparent;
+    color: var(--muted);
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .filter-btn-reset:hover { border-color: var(--rust); color: var(--rust); }
+  .filter-results-count {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .filter-results-count strong { color: var(--ink); }
+
+  /* ── GRID ── */
+  .home-body { padding: 32px 48px; }
+  .home-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+
+  /* ── CARD ── */
+  .h-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    cursor: pointer;
+  }
+  .h-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.09);
+    border-color: rgba(212,168,83,0.3);
+  }
+  .h-card-img-wrap {
+    background: #f8f6f2;
+    height: 190px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .h-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 14px;
+    transition: transform 0.3s cubic-bezier(0.23,1,0.32,1);
+  }
+  .h-card:hover .h-card-img { transform: scale(1.04); }
+  .h-card-cat {
+    position: absolute;
+    top: 10px; left: 10px;
+    background: var(--ink);
+    color: var(--gold);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 2px;
+  }
+  .h-card-stock {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+  .h-card-stock.in { background: var(--sage); }
+  .h-card-stock.out { background: var(--rust); }
+  .h-card-body {
+    padding: 16px 16px 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .h-card-brand {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .h-card-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.25;
+    margin-bottom: 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex: 1;
+  }
+  .h-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    background: #faf8f5;
+  }
+  .h-card-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--ink);
+  }
+  .h-card-price span {
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    color: var(--muted);
+    vertical-align: super;
+  }
+  .h-card-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 12px;
+    border-radius: 3px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    cursor: pointer;
     transition: background 0.2s, transform 0.15s;
-    white-space: nowrap;
+    background: var(--ink);
+    color: var(--cream);
   }
-  .btn-cart:hover:not(:disabled) {
-    background: var(--rust);
-    transform: scale(1.04);
-  }
-  .btn-cart:disabled {
-    background: #ccc;
-    color: #999;
+  .h-card-btn:hover { background: var(--rust); transform: translateY(-1px); }
+  .h-card-btn.out-stock {
+    background: var(--border);
+    color: var(--muted);
     cursor: not-allowed;
   }
 
-  /* ── EMPTY STATE ── */
-  .empty-state {
-    text-align: center;
-    padding: 100px 20px;
+  /* ── PAGINATION ── */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 16px 0 40px;
+    flex-wrap: wrap;
   }
-  .empty-state h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 28px;
-    color: var(--ink);
-    margin-bottom: 10px;
-  }
-  .empty-state p {
+  .page-info {
+    font-size: 12px;
     color: var(--muted);
-    font-size: 15px;
+    text-align: center;
+    margin-bottom: 14px;
+    letter-spacing: 0.05em;
+  }
+  .page-info strong { color: var(--ink); }
+  .page-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    border: 1.5px solid var(--border);
+    background: var(--card-bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .page-btn:hover:not(:disabled) {
+    border-color: var(--ink);
+    color: var(--ink);
+    background: var(--cream);
+  }
+  .page-btn.active {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--cream);
+    font-weight: 700;
+  }
+  .page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .page-btn.nav {
+    width: auto;
+    padding: 0 14px;
+    gap: 6px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .page-size-select {
+    margin-left: 12px;
+    background: var(--cream);
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    padding: 6px 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: var(--ink);
+    outline: none;
+    cursor: pointer;
   }
 
-  /* ── ERROR STATE ── */
-  .error-state {
+  /* ── EMPTY ── */
+  .home-empty {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
-    gap: 16px;
-    background: var(--cream);
+    padding: 80px 20px;
+    gap: 14px;
+    text-align: center;
   }
-  .error-state h4 {
-    font-family: 'Playfair Display', serif;
-    font-size: 24px;
-    color: var(--ink);
-  }
-  .error-state p {
-    color: var(--muted);
-    font-size: 14px;
-  }
-
-  /* ── TOAST ── */
-  .toast-wrapper {
-    position: fixed;
-    bottom: 32px;
-    right: 32px;
-    z-index: 9999;
-    pointer-events: none;
-  }
-  .toast-pill {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--ink);
-    color: var(--cream);
-    border-radius: 100px;
-    padding: 12px 20px 12px 12px;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
-    pointer-events: all;
-    transform: translateY(80px);
-    opacity: 0;
-    transition: transform 0.4s cubic-bezier(0.23,1,0.32,1), opacity 0.3s;
-  }
-  .toast-pill.show {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  .toast-img {
-    width: 36px;
-    height: 36px;
+  .home-empty-icon {
+    width: 60px; height: 60px;
     border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--gold);
-    flex-shrink: 0;
-  }
-  .toast-text-main {
-    font-weight: 600;
-    font-size: 13px;
-  }
-  .toast-text-sub {
-    font-size: 11px;
-    color: rgba(245,240,232,0.55);
-    margin-top: 1px;
-  }
-  .toast-icon {
-    width: 20px;
-    height: 20px;
-    background: var(--sage);
-    border-radius: 50%;
+    background: rgba(212,168,83,0.1);
+    border: 1.5px solid rgba(212,168,83,0.25);
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
+    color: var(--gold);
+    font-size: 24px;
   }
+  .home-empty h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    margin: 0;
+    color: var(--ink);
+  }
+  .home-empty p { font-size: 14px; color: var(--muted); margin: 0; }
 
-  @media (max-width: 600px) {
-    .hero-strip { padding: 48px 20px 40px; }
-    .filter-row { padding: 16px 20px; }
-    .products-section { padding: 32px 16px; }
-    .products-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .toast-wrapper { bottom: 16px; right: 16px; left: 16px; }
-    .hero-count { display: none; }
+  /* ── LOADING ── */
+  .home-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    gap: 14px;
+  }
+  .home-spinner {
+    width: 32px; height: 32px;
+    border: 2.5px solid var(--border);
+    border-top-color: var(--ink);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 768px) {
+    .home-hero, .home-body { padding-left: 20px; padding-right: 20px; }
+    .filter-bar { padding: 12px 20px; }
+    .home-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+    .h-card-img-wrap { height: 150px; }
+    .filter-results-count { display: none; }
   }
 `;
 
+const CATEGORIES = [
+  "",
+  "Laptop",
+  "Headphone",
+  "Mobile",
+  "Electronics",
+  "Toys",
+  "Fashion",
+];
+const SORT_OPTIONS = [
+  { value: "id|asc", label: "Default" },
+  { value: "price|asc", label: "Price: Low to High" },
+  { value: "price|desc", label: "Price: High to Low" },
+  { value: "name|asc", label: "Name: A–Z" },
+  { value: "name|desc", label: "Name: Z–A" },
+];
+
+const convertBase64ToDataURL = (imageData, mimeType = "image/jpeg") => {
+  if (!imageData) return null;
+  if (typeof imageData === "string" && imageData.startsWith("data:"))
+    return imageData;
+  if (typeof imageData === "string")
+    return `data:${mimeType};base64,${imageData}`;
+  if (Array.isArray(imageData)) {
+    const bin = imageData.map((b) => String.fromCharCode(b)).join("");
+    return `data:${mimeType};base64,${btoa(bin)}`;
+  }
+  return null;
+};
+
 const Home = ({ selectedCategory }) => {
-  const { data, isError, addToCart, refreshData } = useContext(AppContext);
-  const [isDataFetched, setIsDataFetched] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastProduct, setToastProduct] = useState(null);
+  const { addToCart, user } = useContext(AppContext);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!isDataFetched) {
-      refreshData();
-      setIsDataFetched(true);
+  // Pagination state
+  const [products, setProducts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [pageSize, setPageSize] = useState(8);
+  const [loading, setLoading] = useState(false);
+
+  // Filter state
+  const [category, setCategory] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [sortValue, setSortValue] = useState("id|asc");
+
+  // Applied filters (only update when Apply is clicked)
+  const [appliedFilters, setAppliedFilters] = useState({
+    category: "",
+    minPrice: "",
+    maxPrice: "",
+    sortBy: "id",
+    direction: "asc",
+  });
+
+  // Fetch products
+  const fetchProducts = async (
+    page = 0,
+    size = pageSize,
+    filters = appliedFilters,
+  ) => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({
+        page,
+        size,
+        sortBy: filters.sortBy,
+        direction: filters.direction,
+      });
+      if (filters.category) params.append("category", filters.category);
+      if (filters.minPrice) params.append("minPrice", filters.minPrice);
+      if (filters.maxPrice) params.append("maxPrice", filters.maxPrice);
+
+      const res = await axios.get(`/api/products/paged?${params}`);
+      setProducts(res.data.content);
+      setCurrentPage(res.data.currentPage);
+      setTotalPages(res.data.totalPages);
+      setTotalElements(res.data.totalElements);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+    } finally {
+      setLoading(false);
     }
-  }, [refreshData, isDataFetched]);
+  };
 
+  // Initial load
   useEffect(() => {
-    //console.log(data, "data from home page");
-  }, [data]);
+    fetchProducts(0, pageSize, appliedFilters);
+  }, []);
 
+  // When navbar category changes
   useEffect(() => {
-    let toastTimer;
-    if (showToast) {
-      toastTimer = setTimeout(() => setShowToast(false), 3000);
+    if (selectedCategory !== undefined) {
+      const newFilters = { ...appliedFilters, category: selectedCategory };
+      setCategory(selectedCategory);
+      setAppliedFilters(newFilters);
+      fetchProducts(0, pageSize, newFilters);
+      setCurrentPage(0);
     }
-    return () => clearTimeout(toastTimer);
-  }, [showToast]);
+  }, [selectedCategory]);
 
-  const convertBase64ToDataURL = (base64String, mimeType = "image/jpeg") => {
-    if (!base64String) return unplugged;
-    if (base64String.startsWith("data:")) return base64String;
-    if (base64String.startsWith("http")) return base64String;
-    return `data:${mimeType};base64,${base64String}`;
+  const handleApplyFilters = () => {
+    const [sortBy, direction] = sortValue.split("|");
+    const newFilters = { category, minPrice, maxPrice, sortBy, direction };
+    setAppliedFilters(newFilters);
+    setCurrentPage(0);
+    fetchProducts(0, pageSize, newFilters);
+  };
+
+  const handleReset = () => {
+    setCategory("");
+    setMinPrice("");
+    setMaxPrice("");
+    setSortValue("id|asc");
+    const reset = {
+      category: "",
+      minPrice: "",
+      maxPrice: "",
+      sortBy: "id",
+      direction: "asc",
+    };
+    setAppliedFilters(reset);
+    setCurrentPage(0);
+    fetchProducts(0, pageSize, reset);
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    fetchProducts(page, pageSize, appliedFilters);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handlePageSizeChange = (e) => {
+    const newSize = parseInt(e.target.value);
+    setPageSize(newSize);
+    setCurrentPage(0);
+    fetchProducts(0, newSize, appliedFilters);
   };
 
   const handleAddToCart = (e, product) => {
-    e.preventDefault();
+    e.stopPropagation();
     addToCart(product);
-    setToastProduct(product);
-    setShowToast(true);
+    toast.success(`${product.name} added to cart`);
   };
 
-  const filteredProducts = selectedCategory
-    ? data.filter((product) => product.category === selectedCategory)
-    : data;
-
-  if (isError) {
-    return (
-      <>
-        <style>{styles}</style>
-        <div className="error-state">
-          <img
-            src={unplugged}
-            alt="Error"
-            width="80"
-            style={{ opacity: 0.4 }}
-          />
-          <h4>Something went wrong</h4>
-          <p>We couldn't load the products. Please try again.</p>
-        </div>
-      </>
-    );
-  }
+  // Build page numbers to show
+  const getPageNumbers = () => {
+    const pages = [];
+    const delta = 2;
+    const left = Math.max(0, currentPage - delta);
+    const right = Math.min(totalPages - 1, currentPage + delta);
+    if (left > 0) {
+      pages.push(0);
+      if (left > 1) pages.push("...");
+    }
+    for (let i = left; i <= right; i++) pages.push(i);
+    if (right < totalPages - 1) {
+      if (right < totalPages - 2) pages.push("...");
+      pages.push(totalPages - 1);
+    }
+    return pages;
+  };
 
   return (
     <>
       <style>{styles}</style>
-
-      {/* ── Toast ── */}
-      <div className="toast-wrapper">
-        <div className={`toast-pill ${showToast ? "show" : ""}`}>
-          {toastProduct && (
-            <>
-              <img
-                src={convertBase64ToDataURL(toastProduct.imageData)}
-                alt={toastProduct.name}
-                className="toast-img"
-                onError={(e) => {
-                  e.target.src = unplugged;
-                }}
-              />
-              <div>
-                <div className="toast-text-main">{toastProduct.name}</div>
-                <div className="toast-text-sub">Added to your cart</div>
-              </div>
-              <div className="toast-icon">
-                <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
-                  <path
-                    d="M1 4.5L4 7.5L10 1"
-                    stroke="white"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-
       <div className="home-wrapper">
         {/* ── Hero ── */}
-        <div className="hero-strip">
-          <div className="hero-eyebrow">New arrivals · Season 2026</div>
-          <h1 className="hero-title">
-            Shop <em>the</em>
-            <br />
-            finest picks
+        <div className="home-hero">
+          <div className="home-eyebrow">All Products</div>
+          <h1 className="home-title">
+            Shop our <em>collection</em>
           </h1>
-          <p className="hero-sub">
-            Curated products, honest prices — everything you need, nothing you
-            don't.
+          <p className="home-subtitle">
+            Showing <strong>{totalElements}</strong> products
           </p>
-          <div className="hero-count">{filteredProducts?.length || ""}</div>
         </div>
 
-        {/* ── Products ── */}
-        <div className="products-section">
-          <div className="section-label">
-            {selectedCategory ? selectedCategory : "All Products"}
-            {filteredProducts?.length > 0 &&
-              ` · ${filteredProducts.length} items`}
-          </div>
+        {/* ── Filter Bar ── */}
+        <div className="filter-bar">
+          <span className="filter-label">Filter</span>
 
-          {!filteredProducts || filteredProducts.length === 0 ? (
-            <div className="empty-state">
-              <h3>Nothing here yet</h3>
-              <p>
-                No products found
-                {selectedCategory ? ` in "${selectedCategory}"` : ""}.
-              </p>
+          <select
+            className="filter-select"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {c || "All Categories"}
+              </option>
+            ))}
+          </select>
+
+          <div className="filter-divider" />
+
+          <input
+            className="filter-input"
+            type="number"
+            placeholder="Min ₹"
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value)}
+          />
+          <span style={{ color: "var(--muted)", fontSize: 12 }}>–</span>
+          <input
+            className="filter-input"
+            type="number"
+            placeholder="Max ₹"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+          />
+
+          <div className="filter-divider" />
+
+          <span className="filter-label">Sort</span>
+          <select
+            className="filter-select"
+            value={sortValue}
+            onChange={(e) => setSortValue(e.target.value)}
+          >
+            {SORT_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+
+          <button className="filter-btn-apply" onClick={handleApplyFilters}>
+            Apply
+          </button>
+          <button className="filter-btn-reset" onClick={handleReset}>
+            Reset
+          </button>
+
+          <span className="filter-results-count">
+            <strong>{totalElements}</strong> results · Page {currentPage + 1} of{" "}
+            {totalPages}
+          </span>
+        </div>
+
+        <div className="home-body">
+          {loading ? (
+            <div className="home-loading">
+              <div className="home-spinner" />
+              <span
+                style={{
+                  fontSize: 12,
+                  color: "var(--muted)",
+                  letterSpacing: "0.15em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Loading…
+              </span>
+            </div>
+          ) : products.length === 0 ? (
+            <div className="home-empty">
+              <div className="home-empty-icon">🔍</div>
+              <h3>No products found</h3>
+              <p>Try adjusting your filters or reset to see all products</p>
+              <button
+                className="filter-btn-apply"
+                style={{ marginTop: 8 }}
+                onClick={handleReset}
+              >
+                Reset Filters
+              </button>
             </div>
           ) : (
-            <div className="products-grid">
-              {filteredProducts.map((product, idx) => {
-                const {
-                  id,
-                  brand,
-                  name,
-                  price,
-                  productAvailable,
-                  imageData,
-                  stockQuantity,
-                } = product;
-                const available = productAvailable && stockQuantity !== 0;
-
-                return (
-                  <div
-                    className={`product-card ${!available ? "unavailable" : ""}`}
-                    key={id}
-                    style={{ animationDelay: `${Math.min(idx * 0.05, 0.4)}s` }}
-                  >
-                    <Link
-                      to={`/product/${id}`}
-                      className="text-decoration-none"
+            <>
+              {/* ── Product Grid ── */}
+              <div className="home-grid">
+                {products.map((product) => {
+                  const imgSrc = convertBase64ToDataURL(
+                    product.imageData,
+                    product.imageType,
+                  );
+                  const inStock =
+                    product.productAvailable && product.stockQuantity > 0;
+                  return (
+                    <div
+                      key={product.id}
+                      className="h-card"
+                      onClick={() => navigate(`/product/${product.id}`)}
                     >
-                      <div className="img-wrapper">
-                        <img
-                          src={convertBase64ToDataURL(imageData)}
-                          alt={name}
-                          onError={(e) => {
-                            e.target.src = unplugged;
-                          }}
+                      <div className="h-card-img-wrap">
+                        {imgSrc ? (
+                          <img
+                            src={imgSrc}
+                            alt={product.name}
+                            className="h-card-img"
+                          />
+                        ) : (
+                          <div style={{ fontSize: 40, opacity: 0.15 }}>📦</div>
+                        )}
+                        <span className="h-card-cat">{product.category}</span>
+                        <span
+                          className={`h-card-stock ${inStock ? "in" : "out"}`}
                         />
-                        {!available && (
-                          <span className="oos-badge">Out of Stock</span>
+                      </div>
+
+                      <div className="h-card-body">
+                        <div className="h-card-brand">{product.brand}</div>
+                        <div className="h-card-name">{product.name}</div>
+                      </div>
+
+                      <div className="h-card-footer">
+                        <div className="h-card-price">
+                          <span>₹</span>
+                          {Number(product.price).toLocaleString("en-IN")}
+                        </div>
+                        {user?.role === "ADMIN" ? (
+                          <button
+                            className="h-card-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/product/update/${product.id}`);
+                            }}
+                          >
+                            Edit
+                          </button>
+                        ) : (
+                          <button
+                            className={`h-card-btn ${!inStock ? "out-stock" : ""}`}
+                            disabled={!inStock}
+                            onClick={(e) =>
+                              inStock && handleAddToCart(e, product)
+                            }
+                          >
+                            {inStock ? "Add" : "Sold Out"}
+                          </button>
                         )}
                       </div>
-                    </Link>
-
-                    <div className="card-body">
-                      <div className="card-brand">{brand}</div>
-                      <Link to={`/product/${id}`} className="card-name">
-                        {name}
-                      </Link>
-                      <div className="card-footer-row">
-                        <div className="card-price">
-                          <span>₹</span>
-                          {price}
-                        </div>
-                        <button
-                          className="btn-cart"
-                          onClick={(e) => handleAddToCart(e, product)}
-                          disabled={!available}
-                        >
-                          {available ? "+ Cart" : "Sold Out"}
-                        </button>
-                      </div>
                     </div>
+                  );
+                })}
+              </div>
+
+              {/* ── Pagination Controls ── */}
+              {totalPages > 1 && (
+                <>
+                  <p className="page-info">
+                    Page <strong>{currentPage + 1}</strong> of{" "}
+                    <strong>{totalPages}</strong>
+                    &nbsp;·&nbsp;
+                    <strong>{totalElements}</strong> total products
+                  </p>
+
+                  <div className="pagination">
+                    {/* Prev */}
+                    <button
+                      className="page-btn nav"
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 0}
+                    >
+                      ← Prev
+                    </button>
+
+                    {/* Page numbers */}
+                    {getPageNumbers().map((p, i) =>
+                      p === "..." ? (
+                        <span
+                          key={`dot-${i}`}
+                          style={{ color: "var(--muted)", fontSize: 13 }}
+                        >
+                          …
+                        </span>
+                      ) : (
+                        <button
+                          key={p}
+                          className={`page-btn ${p === currentPage ? "active" : ""}`}
+                          onClick={() => handlePageChange(p)}
+                        >
+                          {p + 1}
+                        </button>
+                      ),
+                    )}
+
+                    {/* Next */}
+                    <button
+                      className="page-btn nav"
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages - 1}
+                    >
+                      Next →
+                    </button>
+
+                    {/* Page size selector */}
+                    <select
+                      className="page-size-select"
+                      value={pageSize}
+                      onChange={handlePageSizeChange}
+                    >
+                      <option value={4}>4 / page</option>
+                      <option value={8}>8 / page</option>
+                      <option value={12}>12 / page</option>
+                      <option value={20}>20 / page</option>
+                    </select>
                   </div>
-                );
-              })}
-            </div>
+                </>
+              )}
+            </>
           )}
         </div>
       </div>
