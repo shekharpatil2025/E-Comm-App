@@ -7,8 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface OrderRepo extends JpaRepository<Order, Integer>
-{
-
-    Optional<Order> findByorderId(String orderId);
+public interface OrderRepo extends JpaRepository<Order, Long> {
+    Optional<Order> findByOrderId(String orderId);
 }

@@ -1,6 +1,5 @@
 package com.shekhar.SpringBoot_ecom.model;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,9 +21,12 @@ public class Order {
     private String orderId;
     private String customerName;
     private String email;
-    private String status;
     private LocalDate orderDate;
 
-    @OneToMany(mappedBy = "order",cascade = CascadeType.ALL)
+    // EnumType.STRING stores "PLACED", "CONFIRMED" etc. in DB — readable
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     List<OrderItem> orderItems;
 }

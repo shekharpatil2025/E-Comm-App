@@ -7,6 +7,7 @@ import com.shekhar.SpringBoot_ecom.model.DTO.OrderRequest;
 import com.shekhar.SpringBoot_ecom.model.DTO.OrderResponse;
 import com.shekhar.SpringBoot_ecom.model.Order;
 import com.shekhar.SpringBoot_ecom.model.OrderItem;
+import com.shekhar.SpringBoot_ecom.model.OrderStatus;
 import com.shekhar.SpringBoot_ecom.model.Product;
 import com.shekhar.SpringBoot_ecom.repo.OrderRepo;
 import com.shekhar.SpringBoot_ecom.repo.ProductRepo;
@@ -28,26 +29,46 @@ public class OrderService {
     @Autowired
     private OrderRepo orderRepo;
 
+    // ── Helper — convert Order to OrderResponse ───────────────────────
+    private OrderResponse mapToResponse(Order order) {
+        List<OrderItemResponse> itemResponses = new ArrayList<>();
+        for (OrderItem item : order.getOrderItems()) {
+            itemResponses.add(new OrderItemResponse(
+                    item.getProduct().getName(),
+                    item.getQuantity(),
+                    item.getTotalPrice()
+            ));
+        }
+        return new OrderResponse(
+                order.getOrderId(),
+                order.getCustomerName(),
+                order.getEmail(),
+                order.getStatus().name(),          // enum → String for response
+                order.getOrderDate().atStartOfDay(),
+                itemResponses
+        );
+    }
+
+    // ── Place Order ───────────────────────────────────────────────────
     public OrderResponse PlaceOrder(OrderRequest orderRequest) {
-        Order order=new Order();
-        String orderId= UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        Order order = new Order();
+        String orderId = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
         order.setOrderId(orderId);
         order.setCustomerName(orderRequest.customerName());
         order.setEmail(orderRequest.email());
-        order.setStatus("Placed");
+        order.setStatus(OrderStatus.PLACED);        // enum instead of String "Placed"
         order.setOrderDate(LocalDate.now());
 
-        List<OrderItem> orderItemList=new ArrayList<>();
-        for(OrderItemRequest itemRequest:orderRequest.items()){
-            Product product=productRepo.findById(itemRequest.productId())
-                    .orElseThrow(()->new RuntimeException("Product not found"));
+        List<OrderItem> orderItemList = new ArrayList<>();
+        for (OrderItemRequest itemRequest : orderRequest.items()) {
+            Product product = productRepo.findById(itemRequest.productId())
+                    .orElseThrow(() -> new RuntimeException("Product not found"));
 
-
-            product.setStockQuantity(product.getStockQuantity()-itemRequest.quantity());
+            product.setStockQuantity(product.getStockQuantity() - itemRequest.quantity());
             productRepo.save(product);
 
-            OrderItem orderItem=OrderItem.builder()
+            OrderItem orderItem = OrderItem.builder()
                     .product(product)
                     .quantity(itemRequest.quantity())
                     .totalPrice(product.getPrice().multiply(BigDecimal.valueOf(itemRequest.quantity())))
@@ -58,58 +79,41 @@ public class OrderService {
         }
 
         order.setOrderItems(orderItemList);
-        Order SavedOrder=orderRepo.save(order);
-
-        List<OrderItemResponse> orderItemResponses=new ArrayList<>();
-        for(OrderItem  orderItem:order.getOrderItems()){
-            OrderItemResponse orderItemResponse=new OrderItemResponse(
-                    orderItem.getProduct().getName(),
-                    orderItem.getQuantity(),
-                    orderItem.getTotalPrice()
-            );
-            orderItemResponses.add(orderItemResponse);
-        }
-        OrderResponse orderResponse=new OrderResponse(
-                SavedOrder.getOrderId(),
-                SavedOrder.getCustomerName(),
-                SavedOrder.getEmail(),
-                SavedOrder.getStatus(),
-                SavedOrder.getOrderDate().atStartOfDay(),
-                orderItemResponses
-        );
-        return orderResponse;
-
-
+        Order savedOrder = orderRepo.save(order);
+        return mapToResponse(savedOrder);
     }
 
+    // ── Get All Orders ────────────────────────────────────────────────
     public List<OrderResponse> getAllOrderResponses() {
-        List<Order>  orders=orderRepo.findAll();
-        List<OrderResponse> orderResponses=new ArrayList<>();
+        List<Order> orders = orderRepo.findAll();
+        List<OrderResponse> responses = new ArrayList<>();
+        for (Order order : orders) {
+            responses.add(mapToResponse(order));
+        }
+        return responses;
+    }
 
+    // ── Update Order Status ───────────────────────────────────────────
+    public OrderResponse updateOrderStatus(String orderId, OrderStatus newStatus) {
+        // 1. Find order
+        Order order = orderRepo.findByOrderId(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
 
-        for(Order order:orders){
+        OrderStatus currentStatus = order.getStatus();
 
-            List<OrderItemResponse> orderItemResponses=new ArrayList<>();
-            for(OrderItem  orderItem:order.getOrderItems()) {
-                OrderItemResponse orderItemResponse = new OrderItemResponse(
-                        orderItem.getProduct().getName(),
-                        orderItem.getQuantity(),
-                        orderItem.getTotalPrice()
-                );
-                orderItemResponses.add(orderItemResponse);
-            }
-
-            OrderResponse orderResponse=new OrderResponse(
-                    order.getOrderId(),
-                    order.getCustomerName(),
-                    order.getEmail(),
-                    order.getStatus(),
-                    order.getOrderDate().atStartOfDay(),
-                    orderItemResponses
+        // 2. Validate transition using state machine
+        if (!currentStatus.canTransitionTo(newStatus)) {
+            throw new IllegalArgumentException(
+                    "Invalid status transition: cannot move from "
+                            + currentStatus + " to " + newStatus
+                            + ". Allowed next statuses: " + currentStatus.allowedNextStatuses()
             );
-             orderResponses.add(orderResponse);
         }
 
-        return orderResponses;
+        // 3. Update and save
+        order.setStatus(newStatus);
+        Order updatedOrder = orderRepo.save(order);
+        return mapToResponse(updatedOrder);
     }
 }
+

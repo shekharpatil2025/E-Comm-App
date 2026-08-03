@@ -41,7 +41,8 @@ public class SecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService); // ← UserDetailsService in constructor
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService); // ← UserDetailsService
+                                                                                                // in constructor
         provider.setPasswordEncoder(passwordEncoder()); // ← encoder set separately
         return provider;
     }
@@ -66,12 +67,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   DaoAuthenticationProvider authProvider) throws Exception {
+            DaoAuthenticationProvider authProvider) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/hello").permitAll()
                         .requestMatchers(
@@ -80,16 +82,17 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/v3/api-docs",
                                 "/swagger-resources/**",
-                                "/webjars/**"
-                        ).permitAll()
+                                "/webjars/**")
+                        .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/search",
                                 "/api/products/paged",
-                                "/api/product/{id}", "/api/product/{id}/image").permitAll()
+                                "/api/product/{id}", "/api/product/{id}/image")
+                        .permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/product").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/product/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/product/**", "/api/orders/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/orders/test-put").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/product/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .authenticationProvider(authProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

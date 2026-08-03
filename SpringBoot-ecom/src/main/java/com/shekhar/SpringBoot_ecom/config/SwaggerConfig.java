@@ -1,4 +1,4 @@
-package com.shekhar.SpringBoot_ecom.security;
+package com.shekhar.SpringBoot_ecom.config;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
