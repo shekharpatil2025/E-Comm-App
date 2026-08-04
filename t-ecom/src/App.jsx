@@ -137,9 +137,9 @@ function AppRoutes() {
                   <Route
                     path="/orders"
                     element={
-                      <ProtectedRoute>
+                      <AdminRoute>
                         <Order />
-                      </ProtectedRoute>
+                      </AdminRoute>
                     }
                   />
 

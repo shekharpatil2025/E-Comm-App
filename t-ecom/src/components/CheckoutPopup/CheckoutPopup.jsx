@@ -1,6 +1,6 @@
-import axios from 'axios';
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import axios from "axios";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -420,12 +420,12 @@ const CheckoutPopup = ({ show, handleClose, cartItems, totalPrice }) => {
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const navigate = useNavigate();
 
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [errors, setErrors] = useState({});
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [toastType, setToastType] = useState('success');
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("success");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
 
@@ -440,17 +440,20 @@ const CheckoutPopup = ({ show, handleClose, cartItems, totalPrice }) => {
   useEffect(() => {
     if (!show) {
       setTimeout(() => {
-        setName(''); setEmail(''); setErrors({});
-        setOrderSuccess(false); setIsSubmitting(false);
+        setName("");
+        setEmail("");
+        setErrors({});
+        setOrderSuccess(false);
+        setIsSubmitting(false);
       }, 300);
     }
   }, [show]);
 
   const validate = () => {
     const newErrors = {};
-    if (!name.trim()) newErrors.name = 'Please enter your name.';
+    if (!name.trim()) newErrors.name = "Please enter your name.";
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-      newErrors.email = 'Please enter a valid email address.';
+      newErrors.email = "Please enter a valid email address.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -460,19 +463,23 @@ const CheckoutPopup = ({ show, handleClose, cartItems, totalPrice }) => {
     if (!validate()) return;
 
     setIsSubmitting(true);
-    const orderItems = cartItems.map(item => ({ productId: item.id, quantity: item.quantity }));
+    const orderItems = cartItems.map((item) => ({
+      productId: item.id,
+      quantity: item.quantity,
+    }));
     const data = { customerName: name, email, items: orderItems };
 
     try {
       const response = await axios.post(`${baseUrl}/api/orders/place`, data);
-      console.log(response, 'order placed');
+      console.log(response, "order placed");
       setOrderSuccess(true);
-      localStorage.removeItem('cart');
-      setTimeout(() => navigate('/'), 2200);
+      localStorage.removeItem("cart");
+      setTimeout(() => navigate("/"), 2200);
     } catch (error) {
       console.log(error);
-      setToastType('error');
-      setToastMessage('Failed to place order. Please try again.');
+      setToastType("error");
+      setToastMessage("Failed to place order. Please try again.");
+      //console.log("failed to place order");
       setShowToast(true);
     } finally {
       setIsSubmitting(false);
@@ -485,16 +492,35 @@ const CheckoutPopup = ({ show, handleClose, cartItems, totalPrice }) => {
     <>
       <style>{styles}</style>
 
-      <div className="co-overlay" onClick={(e) => e.target === e.currentTarget && !isSubmitting && handleClose()}>
+      <div
+        className="co-overlay"
+        onClick={(e) =>
+          e.target === e.currentTarget && !isSubmitting && handleClose()
+        }
+      >
         <div className="co-modal">
-
           {/* Header */}
           <div className="co-head">
             <div className="co-eyebrow">Almost there</div>
-            <h2 className="co-title">Confirm <em>order</em></h2>
-            <button className="co-close" onClick={handleClose} disabled={isSubmitting}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            <h2 className="co-title">
+              Confirm <em>order</em>
+            </h2>
+            <button
+              className="co-close"
+              onClick={handleClose}
+              disabled={isSubmitting}
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             </button>
           </div>
@@ -504,13 +530,26 @@ const CheckoutPopup = ({ show, handleClose, cartItems, totalPrice }) => {
             {orderSuccess ? (
               <div className="co-success">
                 <div className="co-success-ring">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4a6741" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
+                  <svg
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#4a6741"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
                   </svg>
                 </div>
                 <h3 className="co-success-title">Order Placed!</h3>
-                <p className="co-success-sub">Thanks, {name}. Redirecting you home…</p>
-                <div className="co-success-bar"><div className="co-success-bar-fill" /></div>
+                <p className="co-success-sub">
+                  Thanks, {name}. Redirecting you home…
+                </p>
+                <div className="co-success-bar">
+                  <div className="co-success-bar-fill" />
+                </div>
               </div>
             ) : (
               <>
@@ -522,14 +561,19 @@ const CheckoutPopup = ({ show, handleClose, cartItems, totalPrice }) => {
                       className="co-item-img"
                       src={`${baseUrl}/api/product/${item.id}/image`}
                       alt={item.name}
-                      onError={(e) => { e.target.style.opacity = 0.3; }}
+                      onError={(e) => {
+                        e.target.style.opacity = 0.3;
+                      }}
                     />
                     <div>
                       <div className="co-item-name">{item.name}</div>
                       <div className="co-item-qty">×{item.quantity}</div>
                     </div>
                     <div className="co-item-price">
-                      ₹{(item.price * item.quantity).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      ₹
+                      {(item.price * item.quantity).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                      })}
                     </div>
                   </div>
                 ))}
@@ -538,7 +582,10 @@ const CheckoutPopup = ({ show, handleClose, cartItems, totalPrice }) => {
                 <div className="co-total-bar">
                   <span className="co-total-label">Order Total</span>
                   <span className="co-total-value">
-                    ₹{totalPrice.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    ₹
+                    {totalPrice.toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                    })}
                   </span>
                 </div>
 
@@ -548,25 +595,35 @@ const CheckoutPopup = ({ show, handleClose, cartItems, totalPrice }) => {
                 <div className="co-field">
                   <label className="co-label">Full Name</label>
                   <input
-                    className={`co-input ${errors.name ? 'has-error' : ''}`}
+                    className={`co-input ${errors.name ? "has-error" : ""}`}
                     type="text"
                     placeholder="e.g. Rahul Sharma"
                     value={name}
-                    onChange={(e) => { setName(e.target.value); if (errors.name) setErrors({ ...errors, name: null }); }}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      if (errors.name) setErrors({ ...errors, name: null });
+                    }}
                   />
-                  {errors.name && <span className="co-error">{errors.name}</span>}
+                  {errors.name && (
+                    <span className="co-error">{errors.name}</span>
+                  )}
                 </div>
 
                 <div className="co-field">
                   <label className="co-label">Email Address</label>
                   <input
-                    className={`co-input ${errors.email ? 'has-error' : ''}`}
+                    className={`co-input ${errors.email ? "has-error" : ""}`}
                     type="email"
                     placeholder="e.g. rahul@email.com"
                     value={email}
-                    onChange={(e) => { setEmail(e.target.value); if (errors.email) setErrors({ ...errors, email: null }); }}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (errors.email) setErrors({ ...errors, email: null });
+                    }}
                   />
-                  {errors.email && <span className="co-error">{errors.email}</span>}
+                  {errors.email && (
+                    <span className="co-error">{errors.email}</span>
+                  )}
                 </div>
               </>
             )}
@@ -575,10 +632,18 @@ const CheckoutPopup = ({ show, handleClose, cartItems, totalPrice }) => {
           {/* Footer */}
           {!orderSuccess && (
             <div className="co-footer">
-              <button className="co-btn-cancel" onClick={handleClose} disabled={isSubmitting}>
+              <button
+                className="co-btn-cancel"
+                onClick={handleClose}
+                disabled={isSubmitting}
+              >
                 Cancel
               </button>
-              <button className="co-btn-confirm" onClick={handleConfirm} disabled={isSubmitting}>
+              <button
+                className="co-btn-confirm"
+                onClick={handleConfirm}
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? (
                   <>
                     <span className="co-spinner" />
@@ -586,8 +651,18 @@ const CheckoutPopup = ({ show, handleClose, cartItems, totalPrice }) => {
                   </>
                 ) : (
                   <>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M5 12h14"/><path d="M12 5l7 7-7 7"/>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M5 12h14" />
+                      <path d="M12 5l7 7-7 7" />
                     </svg>
                     Confirm Purchase
                   </>
@@ -599,15 +674,30 @@ const CheckoutPopup = ({ show, handleClose, cartItems, totalPrice }) => {
       </div>
 
       {/* Toast */}
-      <div className={`co-toast ${showToast ? 'show' : ''}`}>
+      <div className={`co-toast ${showToast ? "show" : ""}`}>
         <div className={`co-toast-icon ${toastType}`}>
-          {toastType === 'success' ? (
+          {toastType === "success" ? (
             <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
-              <path d="M1 4.5L4 7.5L10 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              <path
+                d="M1 4.5L4 7.5L10 1"
+                stroke="white"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           ) : (
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           )}
         </div>
