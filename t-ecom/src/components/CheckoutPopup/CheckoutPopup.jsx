@@ -1,4 +1,4 @@
-import axios from "axios";
+import API from "../../axios";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -417,7 +417,6 @@ const styles = `
 `;
 
 const CheckoutPopup = ({ show, handleClose, cartItems, totalPrice }) => {
-  const baseUrl = import.meta.env.VITE_BASE_URL;
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
@@ -470,7 +469,7 @@ const CheckoutPopup = ({ show, handleClose, cartItems, totalPrice }) => {
     const data = { customerName: name, email, items: orderItems };
 
     try {
-      const response = await axios.post(`${baseUrl}/api/orders/place`, data);
+      const response = await API.post(`/api/orders/place`, data);
       console.log(response, "order placed");
       setOrderSuccess(true);
       localStorage.removeItem("cart");
@@ -559,7 +558,7 @@ const CheckoutPopup = ({ show, handleClose, cartItems, totalPrice }) => {
                   <div className="co-item" key={item.id}>
                     <img
                       className="co-item-img"
-                      src={`${baseUrl}/api/product/${item.id}/image`}
+                      src={`${import.meta.env.VITE_BASE_URL}/api/product/${item.id}/image`}
                       alt={item.name}
                       onError={(e) => {
                         e.target.style.opacity = 0.3;

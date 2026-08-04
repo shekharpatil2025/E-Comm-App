@@ -93,6 +93,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/orders/test-put").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/orders/place")
                         .hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/orders/my").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/orders").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/product/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .authenticationProvider(authProvider)

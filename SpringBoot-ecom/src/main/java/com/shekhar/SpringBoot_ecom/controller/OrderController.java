@@ -25,7 +25,6 @@ public class OrderController {
 
     @PostMapping("/orders/place")
     public ResponseEntity<OrderResponse> PlaceOrder(@RequestBody OrderRequest orderRequest) {
-        System.out.println("Inside Place Order Controller");
         OrderResponse orderResponse = orderService.PlaceOrder(orderRequest);
         return new ResponseEntity<>(orderResponse, HttpStatus.CREATED);
     }
@@ -34,6 +33,13 @@ public class OrderController {
     public ResponseEntity<List<OrderResponse>> getAllOrder() {
         List<OrderResponse> orderResponse = orderService.getAllOrderResponses();
         return new ResponseEntity<>(orderResponse, HttpStatus.CREATED);
+    }
+
+    // Get MY orders — any logged-in user sees only their own
+    @GetMapping("/orders/my")
+    public ResponseEntity<List<OrderResponse>> getMyOrders() {
+        List<OrderResponse> orderResponses = orderService.getMyOrders();
+        return new ResponseEntity<>(orderResponses, HttpStatus.OK);
     }
 
     @PutMapping("/orders/test-put")

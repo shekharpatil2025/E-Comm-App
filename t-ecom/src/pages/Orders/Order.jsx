@@ -407,10 +407,11 @@ const Order = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await API.get("/api/orders");
+      const endpoint = isAdmin ? "/api/orders" : "/api/orders/my"; // ← key change
+      const response = await API.get(endpoint);
       setOrders(response.data);
     } catch {
-      setError("Failed to fetch orders. Please try again later.");
+      setError("Failed to fetch orders.");
     } finally {
       setLoading(false);
     }

@@ -23,6 +23,8 @@ public class Order {
     private String email;
     private LocalDate orderDate;
 
+    private String username;
+
     // EnumType.STRING stores "PLACED", "CONFIRMED" etc. in DB — readable
     @Enumerated(EnumType.STRING)
     private OrderStatus status;

@@ -12,6 +12,8 @@ import com.shekhar.SpringBoot_ecom.model.Product;
 import com.shekhar.SpringBoot_ecom.repo.OrderRepo;
 import com.shekhar.SpringBoot_ecom.repo.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,6 +30,14 @@ public class OrderService {
 
     @Autowired
     private OrderRepo orderRepo;
+    // ── Get logged-in username from Security Context ──────────────────
+    private String getCurrentUsername() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            return auth.getName();
+        }
+        return null;
+    }
 
     // ── Helper — convert Order to OrderResponse ───────────────────────
     private OrderResponse mapToResponse(Order order) {
@@ -59,6 +69,7 @@ public class OrderService {
         order.setEmail(orderRequest.email());
         order.setStatus(OrderStatus.PLACED);        // enum instead of String "Placed"
         order.setOrderDate(LocalDate.now());
+        order.setUsername(getCurrentUsername());
 
         List<OrderItem> orderItemList = new ArrayList<>();
         for (OrderItemRequest itemRequest : orderRequest.items()) {
@@ -86,6 +97,20 @@ public class OrderService {
     // ── Get All Orders ────────────────────────────────────────────────
     public List<OrderResponse> getAllOrderResponses() {
         List<Order> orders = orderRepo.findAll();
+        List<OrderResponse> responses = new ArrayList<>();
+        for (Order order : orders) {
+            responses.add(mapToResponse(order));
+        }
+        return responses;
+    }
+
+    // ── Get My Orders (USER) ──────────────────────────────────────────
+    public List<OrderResponse> getMyOrders() {
+        String username = getCurrentUsername();
+        if (username == null) {
+            throw new RuntimeException("User not authenticated");
+        }
+        List<Order> orders = orderRepo.findByUsername(username);
         List<OrderResponse> responses = new ArrayList<>();
         for (Order order : orders) {
             responses.add(mapToResponse(order));

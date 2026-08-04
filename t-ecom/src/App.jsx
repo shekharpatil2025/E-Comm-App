@@ -142,6 +142,14 @@ function AppRoutes() {
                       </AdminRoute>
                     }
                   />
+                  <Route
+                    path="/my-orders"
+                    element={
+                      <ProtectedRoute>
+                        <Order />
+                      </ProtectedRoute>
+                    }
+                  />
 
                   {/* ADMIN only */}
                   <Route

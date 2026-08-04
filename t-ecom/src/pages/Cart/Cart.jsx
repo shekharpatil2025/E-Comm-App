@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import AppContext from "../../Context/Context";
 import axios from "axios";
 import CheckoutPopup from "../../components/CheckoutPopup/CheckoutPopup";
+import { useNavigate } from "react-router-dom";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -407,12 +408,12 @@ const styles = `
 `;
 
 const Cart = () => {
-  const { cart, removeFromCart, clearCart } = useContext(AppContext);
+  const { cart, removeFromCart, clearCart, user } = useContext(AppContext);
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [cartImage, setCartImage] = useState([]);
   const [showModal, setShowModal] = useState(false);
-
+  const navigate = useNavigate();
   const baseUrl = import.meta.env.VITE_BASE_URL;
 
   useEffect(() => {
@@ -732,7 +733,13 @@ const Cart = () => {
 
                     <button
                       className="btn-checkout"
-                      onClick={() => setShowModal(true)}
+                      onClick={() => {
+                        if (!user) {
+                          navigate("/login");
+                          return;
+                        }
+                        setShowModal(true);
+                      }}
                     >
                       <svg
                         width="14"
