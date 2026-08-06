@@ -1,7 +1,6 @@
-version: '3.8'
+version: "3.8"
 
 services:
-
   # ── PostgreSQL Database ──────────────────────────────────────────────
   db:
     image: postgres:16-alpine
@@ -11,9 +10,9 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: Shekhar@45
     ports:
-      - "5433:5432"   # host:container — use 5433 to avoid conflict with local postgres
+      - "5433:5432" # host:container — use 5433 to avoid conflict with local postgres
     volumes:
-      - postgres_data:/var/lib/postgresql/data   # persist data between restarts
+      - postgres_data:/var/lib/postgresql/data # persist data between restarts
     networks:
       - ecom-network
     healthcheck:
@@ -38,12 +37,23 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       JWT_SECRET: docker-secret-key-minimum-32-characters-long
       JWT_EXPIRATION_MS: 86400000
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
     depends_on:
       db:
-        condition: service_healthy   # wait for postgres to be ready
+        condition: service_healthy # wait for postgres to be ready
     networks:
       - ecom-network
     restart: on-failure
+
+  #------ Redis cache system
+  redis:
+    image: redis:7-alpine
+    container_name: ecom-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - ecom-network
 
   # ── React Frontend ───────────────────────────────────────────────────
   frontend:
@@ -52,7 +62,7 @@ services:
       dockerfile: Dockerfile
     container_name: ecom-frontend
     ports:
-      - "3000:80"    # React app available at http://localhost:3000
+      - "3000:80" # React app available at http://localhost:3000
     depends_on:
       - backend
     networks:

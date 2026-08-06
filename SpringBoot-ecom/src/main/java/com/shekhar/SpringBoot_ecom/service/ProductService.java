@@ -4,6 +4,8 @@ import com.shekhar.SpringBoot_ecom.model.DTO.PageResponse;
 import com.shekhar.SpringBoot_ecom.model.Product;
 import com.shekhar.SpringBoot_ecom.repo.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +24,8 @@ public class ProductService {
     private ProductRepo repo;
 
     // Existing — unchanged
+    // Cache product list — served from Redis after first call
+    @Cacheable(value = "products", unless = "#result.isEmpty()")
     public List<Product> getAllProducts() {
         return repo.findByProductAvailableTrue();
     }
@@ -30,6 +34,8 @@ public class ProductService {
         return repo.findById(id).get();
     }
 
+    // Clear cache when product is added or updated
+    @CacheEvict(value = "products", allEntries = true)
     public Product addOrUpdateProduct(Product product, MultipartFile image) throws IOException {
         if (image != null && !image.isEmpty()) {
             product.setImageName(image.getOriginalFilename());
@@ -39,6 +45,8 @@ public class ProductService {
         return repo.save(product);
     }
 
+    // Clear cache when product is deleted
+    @CacheEvict(value = "products", allEntries = true)
     public void deleteProduct(int id) {
         Product product = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
