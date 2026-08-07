@@ -19,6 +19,7 @@ A production-grade full-stack e-commerce platform built with **Spring Boot** and
 ## Features
 
 ### Security
+
 - JWT authentication with stateless session management
 - Role-based access control — `ADMIN` and `USER` roles
 - Spring Security 6.x filter chain with custom `JwtAuthFilter`
@@ -27,6 +28,7 @@ A production-grade full-stack e-commerce platform built with **Spring Boot** and
 - Axios interceptors auto-attach Bearer tokens and handle 401 redirects
 
 ### Product Management
+
 - Full CRUD for products with image upload (ADMIN only)
 - **Pagination** — configurable page size, page navigation
 - **Filtering** — by category and price range
@@ -35,12 +37,14 @@ A production-grade full-stack e-commerce platform built with **Spring Boot** and
 - **Soft delete** — products flagged inactive instead of hard-deleted, preserving order history and referential integrity against PostgreSQL FK constraints
 
 ### Performance
+
 - **Redis caching** on product listings via `@Cacheable`
 - **Cache eviction** via `@CacheEvict` on product update/delete — ensures cache never serves stale data
 - 10-minute TTL with automatic cache refresh
 - Response time drops from ~340ms (DB hit) to ~10ms (cache hit)
 
 ### Cart & Orders
+
 - Add/remove items from cart (persisted in localStorage)
 - Stock decrement on checkout with **optimistic locking** (`@Version`) to prevent overselling under concurrent requests
 - **Order status state machine** — `PLACED → CONFIRMED → SHIPPED → DELIVERED / CANCELLED`
@@ -50,12 +54,14 @@ A production-grade full-stack e-commerce platform built with **Spring Boot** and
 - ADMIN can update order status via dropdown in the UI
 
 ### API & Documentation
+
 - RESTful API with layered architecture (Controller → Service → Repository)
 - **Swagger/OpenAPI** interactive docs with JWT authorization support at `/swagger-ui/index.html`
 - Centralised exception handling via `@ControllerAdvice` returning consistent JSON error responses
 - DTO-based request validation with `@Valid`
 
 ### Testing
+
 - 32 unit tests across `ProductService`, `AuthService`, and `JwtUtil`
 - Mockito mocks for all dependencies — no database required for tests
 - Tests cover negative cases — duplicate registration, bad credentials, expired tokens, tampered tokens, soft delete never calls `deleteById`
@@ -67,9 +73,11 @@ A production-grade full-stack e-commerce platform built with **Spring Boot** and
 The easiest way to run the project — no manual setup needed.
 
 ### Prerequisites
+
 - [Docker Desktop](https://www.docker.com/products/docker-desktop)
 
 ### Run
+
 ```bash
 git clone https://github.com/shekharpatil2025/E-Comm-App.git
 cd E-Comm-App
@@ -78,15 +86,16 @@ docker-compose up --build
 
 First run takes 3-5 minutes to build images. After that:
 
-| Service | URL |
-|---|---|
-| Frontend | http://localhost:3000 |
-| Backend API | http://localhost:8080 |
+| Service      | URL                                         |
+| ------------ | ------------------------------------------- |
+| Frontend     | http://localhost:3000                       |
+| Backend API  | http://localhost:8080                       |
 | Swagger Docs | http://localhost:8080/swagger-ui/index.html |
-| PostgreSQL | localhost:5433 |
-| Redis | localhost:6379 |
+| PostgreSQL   | localhost:5433                              |
+| Redis        | localhost:6379                              |
 
 ### Stop
+
 ```bash
 docker-compose stop      # stops containers, data is preserved
 docker-compose down      # removes containers, data is preserved
@@ -98,6 +107,7 @@ docker-compose down -v   # removes everything including data
 ## Manual Setup (without Docker)
 
 ### Prerequisites
+
 - Java 21+
 - Node.js 18+
 - PostgreSQL
@@ -112,6 +122,7 @@ cd E-Comm-App/SpringBoot-ecom
 ```
 
 Create `src/main/resources/application.properties`:
+
 ```properties
 spring.datasource.url=jdbc:postgresql://localhost:5432/ecom_db
 spring.datasource.username=your_username
@@ -149,47 +160,52 @@ npm run dev
 ## API Endpoints
 
 ### Auth
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| POST | `/api/auth/register` | Public | Register new user (role: USER) |
-| POST | `/api/auth/login` | Public | Login, returns JWT token |
+
+| Method | Endpoint             | Access | Description                    |
+| ------ | -------------------- | ------ | ------------------------------ |
+| POST   | `/api/auth/register` | Public | Register new user (role: USER) |
+| POST   | `/api/auth/login`    | Public | Login, returns JWT token       |
 
 ### Products
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| GET | `/api/products` | Public | Get all available products (cached) |
-| GET | `/api/products/paged` | Public | Get products with pagination + filters |
-| GET | `/api/product/{id}` | Public | Get product by ID |
-| GET | `/api/product/{id}/image` | Public | Get product image |
-| GET | `/api/products/search?keyword=` | Public | Search products |
-| POST | `/api/product` | ADMIN | Create product with image |
-| PUT | `/api/product/{id}` | ADMIN | Update product (evicts cache) |
-| DELETE | `/api/product/{id}` | ADMIN | Soft delete product (evicts cache) |
+
+| Method | Endpoint                        | Access | Description                            |
+| ------ | ------------------------------- | ------ | -------------------------------------- |
+| GET    | `/api/products`                 | Public | Get all available products (cached)    |
+| GET    | `/api/products/paged`           | Public | Get products with pagination + filters |
+| GET    | `/api/product/{id}`             | Public | Get product by ID                      |
+| GET    | `/api/product/{id}/image`       | Public | Get product image                      |
+| GET    | `/api/products/search?keyword=` | Public | Search products                        |
+| POST   | `/api/product`                  | ADMIN  | Create product with image              |
+| PUT    | `/api/product/{id}`             | ADMIN  | Update product (evicts cache)          |
+| DELETE | `/api/product/{id}`             | ADMIN  | Soft delete product (evicts cache)     |
 
 ### Pagination & Filtering
+
 ```
 GET /api/products/paged?page=0&size=8&sortBy=price&direction=asc&category=Laptop&minPrice=50000&maxPrice=150000
 ```
 
-| Parameter | Default | Description |
-|---|---|---|
-| `page` | 0 | Page number (0-based) |
-| `size` | 10 | Products per page |
-| `sortBy` | id | Field to sort by (id, price, name) |
-| `direction` | asc | Sort direction (asc, desc) |
-| `category` | - | Filter by category |
-| `minPrice` | - | Minimum price filter |
-| `maxPrice` | - | Maximum price filter |
+| Parameter   | Default | Description                        |
+| ----------- | ------- | ---------------------------------- |
+| `page`      | 0       | Page number (0-based)              |
+| `size`      | 10      | Products per page                  |
+| `sortBy`    | id      | Field to sort by (id, price, name) |
+| `direction` | asc     | Sort direction (asc, desc)         |
+| `category`  | -       | Filter by category                 |
+| `minPrice`  | -       | Minimum price filter               |
+| `maxPrice`  | -       | Maximum price filter               |
 
 ### Orders
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| POST | `/api/orders/place` | USER / ADMIN | Place a new order |
-| GET | `/api/orders` | ADMIN | Get all orders |
-| GET | `/api/orders/my` | USER | Get logged-in user's orders only |
-| PUT | `/api/orders/{orderId}/status` | ADMIN | Update order status |
+
+| Method | Endpoint                       | Access       | Description                      |
+| ------ | ------------------------------ | ------------ | -------------------------------- |
+| POST   | `/api/orders/place`            | USER / ADMIN | Place a new order                |
+| GET    | `/api/orders`                  | ADMIN        | Get all orders                   |
+| GET    | `/api/orders/my`               | USER         | Get logged-in user's orders only |
+| PUT    | `/api/orders/{orderId}/status` | ADMIN        | Update order status              |
 
 ### Order Status Transitions
+
 ```
 PLACED → CONFIRMED → SHIPPED → DELIVERED
 PLACED → CANCELLED
@@ -247,6 +263,30 @@ E-Comm-App/
 **Multi-stage Docker Build** — Stage 1 uses Maven to build the jar. Stage 2 copies only the jar into a lightweight JRE Alpine image (~80MB vs ~500MB for full JDK).
 
 **User-specific Orders** — When placing an order, the logged-in username (from `SecurityContextHolder`) is saved on the order. `GET /api/orders/my` filters by username so users only see their own orders. Admins use `GET /api/orders` to see everything.
+
+---
+
+## 📸 Screenshots
+
+### 🏠 Home Page
+
+![Home Page](screenshots/home.png)
+
+### 👨‍💼 Role-Based Access — ADMIN View
+
+![Admin View](screenshots/home%20admin.png)
+
+### 📚 Swagger API Documentation
+
+![Swagger](screenshots/swagger.png)
+
+### 📦 Order Status Management
+
+![Orders](screenshots/order%20sts.png)
+
+### 🐳 Docker Deployment
+
+![Docker](screenshots/docker.png)
 
 ---
 
