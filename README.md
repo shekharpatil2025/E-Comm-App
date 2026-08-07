@@ -1,14 +1,14 @@
 # E-Commerce Web Application
 
-A full-stack e-commerce platform built with **Spring Boot** and **React.js**, featuring JWT-based authentication, role-based access control, pagination, and a complete cart-to-order lifecycle.
+A production-grade full-stack e-commerce platform built with **Spring Boot** and **React.js**, featuring JWT authentication, role-based access control, Redis caching, pagination, order status state machine, and full Docker deployment.
 
 ---
 
 ## Tech Stack
 
-**Backend** — Java 21 · Spring Boot · Spring Security 6.x · JWT (JJWT) · Hibernate/JPA · PostgreSQL · Maven
+**Backend** — Java 21 · Spring Boot · Spring Security 6.x · JWT (JJWT) · Hibernate/JPA · PostgreSQL · Redis · Maven
 
-**Frontend** — React.js · Vite · Axios · React Router · Context API · Tailwind CSS
+**Frontend** — React.js · Vite · Axios · React Router · Context API
 
 **DevOps** — Docker · Docker Compose · Nginx · Multi-stage builds
 
@@ -32,27 +32,37 @@ A full-stack e-commerce platform built with **Spring Boot** and **React.js**, fe
 - **Filtering** — by category and price range
 - **Sorting** — by price, name, or ID (ascending/descending)
 - Keyword search across name, description, brand, category
-- **Soft delete** — products flagged inactive instead of hard-deleted, preserving order history and referential integrity
+- **Soft delete** — products flagged inactive instead of hard-deleted, preserving order history and referential integrity against PostgreSQL FK constraints
+
+### Performance
+- **Redis caching** on product listings via `@Cacheable`
+- **Cache eviction** via `@CacheEvict` on product update/delete — ensures cache never serves stale data
+- 10-minute TTL with automatic cache refresh
+- Response time drops from ~340ms (DB hit) to ~10ms (cache hit)
 
 ### Cart & Orders
 - Add/remove items from cart (persisted in localStorage)
 - Stock decrement on checkout with **optimistic locking** (`@Version`) to prevent overselling under concurrent requests
-- Cart-to-Order lifecycle with order history
+- **Order status state machine** — `PLACED → CONFIRMED → SHIPPED → DELIVERED / CANCELLED`
+- Invalid transitions rejected with clear error message (e.g. `Cannot transition from DELIVERED to CANCELLED`)
+- Terminal states (DELIVERED, CANCELLED) are immutable
+- User-specific order history — USERs see only their own orders, ADMINs see all
+- ADMIN can update order status via dropdown in the UI
 
 ### API & Documentation
 - RESTful API with layered architecture (Controller → Service → Repository)
-- **Swagger/OpenAPI** interactive docs with JWT authorization support
-- Centralised exception handling via `@ControllerAdvice`
+- **Swagger/OpenAPI** interactive docs with JWT authorization support at `/swagger-ui/index.html`
+- Centralised exception handling via `@ControllerAdvice` returning consistent JSON error responses
 - DTO-based request validation with `@Valid`
 
 ### Testing
 - 32 unit tests across `ProductService`, `AuthService`, and `JwtUtil`
 - Mockito mocks for all dependencies — no database required for tests
-- Tests for negative cases — duplicate registration, bad credentials, expired tokens, tampered tokens
+- Tests cover negative cases — duplicate registration, bad credentials, expired tokens, tampered tokens, soft delete never calls `deleteById`
 
 ---
 
-## Quick Start with Docker
+## Quick Start with Docker 🐳
 
 The easiest way to run the project — no manual setup needed.
 
@@ -74,6 +84,7 @@ First run takes 3-5 minutes to build images. After that:
 | Backend API | http://localhost:8080 |
 | Swagger Docs | http://localhost:8080/swagger-ui/index.html |
 | PostgreSQL | localhost:5433 |
+| Redis | localhost:6379 |
 
 ### Stop
 ```bash
@@ -90,6 +101,7 @@ docker-compose down -v   # removes everything including data
 - Java 21+
 - Node.js 18+
 - PostgreSQL
+- Redis
 - Maven
 
 ### Backend Setup
@@ -110,6 +122,11 @@ spring.jpa.show-sql=true
 
 jwt.secret=your-secret-key-minimum-32-characters-long
 jwt.expiration-ms=86400000
+
+spring.data.redis.host=localhost
+spring.data.redis.port=6379
+spring.cache.type=redis
+spring.cache.redis.time-to-live=600000
 
 spring.servlet.multipart.max-file-size=10MB
 spring.servlet.multipart.max-request-size=10MB
@@ -140,14 +157,14 @@ npm run dev
 ### Products
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
-| GET | `/api/products` | Public | Get all available products |
+| GET | `/api/products` | Public | Get all available products (cached) |
 | GET | `/api/products/paged` | Public | Get products with pagination + filters |
 | GET | `/api/product/{id}` | Public | Get product by ID |
 | GET | `/api/product/{id}/image` | Public | Get product image |
 | GET | `/api/products/search?keyword=` | Public | Search products |
 | POST | `/api/product` | ADMIN | Create product with image |
-| PUT | `/api/product/{id}` | ADMIN | Update product |
-| DELETE | `/api/product/{id}` | ADMIN | Soft delete product |
+| PUT | `/api/product/{id}` | ADMIN | Update product (evicts cache) |
+| DELETE | `/api/product/{id}` | ADMIN | Soft delete product (evicts cache) |
 
 ### Pagination & Filtering
 ```
@@ -167,8 +184,17 @@ GET /api/products/paged?page=0&size=8&sortBy=price&direction=asc&category=Laptop
 ### Orders
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
-| GET | `/api/orders` | USER / ADMIN | Get all orders |
-| POST | `/api/order` | USER / ADMIN | Place order |
+| POST | `/api/orders/place` | USER / ADMIN | Place a new order |
+| GET | `/api/orders` | ADMIN | Get all orders |
+| GET | `/api/orders/my` | USER | Get logged-in user's orders only |
+| PUT | `/api/orders/{orderId}/status` | ADMIN | Update order status |
+
+### Order Status Transitions
+```
+PLACED → CONFIRMED → SHIPPED → DELIVERED
+PLACED → CANCELLED
+CONFIRMED → CANCELLED
+```
 
 ---
 
@@ -177,51 +203,55 @@ GET /api/products/paged?page=0&size=8&sortBy=price&direction=asc&category=Laptop
 ```
 E-Comm-App/
 ├── docker-compose.yml
-├── SpringBoot-ecom/               # Spring Boot backend
+├── SpringBoot-ecom/                    # Spring Boot backend
 │   ├── Dockerfile
 │   └── src/
 │       ├── main/java/
-│       │   ├── controller/        # REST controllers
-│       │   ├── service/           # Business logic
-│       │   ├── repo/              # JPA repositories
-│       │   ├── model/             # Entities + DTOs
-│       │   ├── security/          # JWT filter, config
-│       │   ├── config/            # Swagger config
-│       │   └── exception/         # Global exception handler
+│       │   ├── controller/             # REST controllers
+│       │   ├── service/               # Business logic + caching
+│       │   ├── repo/                  # JPA repositories
+│       │   ├── model/                 # Entities + DTOs + Enums
+│       │   ├── security/              # JWT filter, config, util
+│       │   ├── config/                # Swagger config
+│       │   └── exception/             # Global exception handler
 │       └── test/java/
-│           ├── service/           # ProductService + AuthService tests
-│           └── security/          # JwtUtil tests
+│           ├── service/               # ProductService + AuthService tests
+│           └── security/              # JwtUtil tests
 │
-└── t-ecom/                        # React/Vite frontend
+└── t-ecom/                            # React/Vite frontend
     ├── Dockerfile
     ├── nginx.conf
     └── src/
-        ├── components/            # UI components
-        ├── pages/                 # Auth pages
-        ├── Context/               # Global state
-        └── axios.jsx              # Axios with JWT interceptor
+        ├── components/                # UI components
+        ├── pages/                     # Auth, Cart, Orders pages
+        ├── Context/                   # Global auth + cart state
+        └── axios.jsx                  # Axios with JWT interceptor
 ```
 
 ---
 
 ## Key Design Decisions
 
-**Soft Delete over Hard Delete** — Deleting a product that has been ordered violates PostgreSQL FK constraints. Products are marked `productAvailable = false` with stock zeroed. Order history stays intact.
+**Soft Delete over Hard Delete** — Deleting a product that has been ordered violates PostgreSQL FK constraints (`order_item` references `product`). Products are marked `productAvailable = false` with stock zeroed. Order history stays intact; the product disappears from the storefront.
 
-**Optimistic Locking** — `@Version` on Product entity prevents two simultaneous checkouts from overselling the same item.
+**Optimistic Locking** — `@Version` on Product entity prevents two simultaneous checkout requests from overselling the same item. The second transaction sees a version mismatch and fails cleanly.
 
-**Stateless JWT Auth** — No server-side sessions. Role is baked into the JWT token at login time and read on every request by `JwtAuthFilter`.
+**Stateless JWT Auth** — No server-side sessions. Role is baked into the JWT token at login time and read on every request by `JwtAuthFilter`. Role changes require re-login since the old token still carries the previous role.
 
-**Two-layer Security** — Frontend route guards (`ProtectedRoute`, `AdminRoute`) provide UX protection. Backend Spring Security rules are the real enforcement.
+**Order Status State Machine** — Each status defines its allowed next states. Invalid transitions (e.g. `DELIVERED → PLACED`) throw `IllegalArgumentException` with a clear message. Terminal states (DELIVERED, CANCELLED) have empty transition sets and cannot be changed.
+
+**Redis Cache Invalidation** — `@Cacheable` on `getAllProducts()` serves repeated requests from Redis. `@CacheEvict(allEntries = true)` on update and delete ensures the cache is cleared when data changes, preventing stale reads.
+
+**Two-layer Security** — Frontend route guards (`ProtectedRoute`, `AdminRoute`) provide UX protection. Backend Spring Security rules are the real enforcement — frontend guards are convenience only.
 
 **Multi-stage Docker Build** — Stage 1 uses Maven to build the jar. Stage 2 copies only the jar into a lightweight JRE Alpine image (~80MB vs ~500MB for full JDK).
 
-**Docker Networking** — All containers share a bridge network. Spring Boot connects to PostgreSQL using the Docker service name (`db`) not `localhost`.
+**User-specific Orders** — When placing an order, the logged-in username (from `SecurityContextHolder`) is saved on the order. `GET /api/orders/my` filters by username so users only see their own orders. Admins use `GET /api/orders` to see everything.
 
 ---
 
 ## Author
 
-**Shekhar Patil** — Backend Developer
+**Shekhar Patil** — Backend Developer · Incoming @ HotelKey India (Oct 2026)
 
 [LinkedIn](https://linkedin.com/in/shekhar-patil-634918236) · [GitHub](https://github.com/shekharpatil2025) · shekharpatil2025@gmail.com
