@@ -42,11 +42,6 @@ public class OrderController {
         return new ResponseEntity<>(orderResponses, HttpStatus.OK);
     }
 
-    @PutMapping("/orders/test-put")
-    public ResponseEntity<String> testPut() {
-        return new ResponseEntity<>("PUT works!", HttpStatus.OK);
-    }
-
     // ADMIN only — update order status
     @PutMapping("/orders/{orderId}/status")
     public ResponseEntity<OrderResponse> updateOrderStatus(

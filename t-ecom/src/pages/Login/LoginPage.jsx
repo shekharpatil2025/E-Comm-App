@@ -145,7 +145,7 @@ const Login = () => {
       <div className="auth-page">
         <div className="auth-card">
           <a className="auth-brand" href="/">
-            Telu<em>sko</em>
+            Multi<em>Verse</em>
           </a>
           <div className="auth-title">Welcome back</div>
           <div className="auth-sub">Sign in to your account to continue</div>
